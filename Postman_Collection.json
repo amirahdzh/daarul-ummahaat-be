@@ -1,8 +1,9 @@
 {
   "info": {
-    "name": "Daarul Ummahaat API",
-    "description": "Authentication and Authorization API for Daarul Ummahaat",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "name": "Daarul Ummahaat API - Complete Collection",
+    "description": "Complete API collection for Daarul Ummahaat donation management system with all CRUD operations and scenarios",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "2.0.0"
   },
   "variable": [
     {
@@ -18,7 +19,31 @@
       "value": ""
     },
     {
+      "key": "editor_token",
+      "value": ""
+    },
+    {
       "key": "user_id",
+      "value": ""
+    },
+    {
+      "key": "program_id",
+      "value": ""
+    },
+    {
+      "key": "package_id",
+      "value": ""
+    },
+    {
+      "key": "fundraiser_id",
+      "value": ""
+    },
+    {
+      "key": "activity_id",
+      "value": ""
+    },
+    {
+      "key": "donation_id",
       "value": ""
     }
   ],
@@ -143,6 +168,44 @@
           ]
         },
         {
+          "name": "Login Editor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"editor@example.com\",\n    \"password\": \"password\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/login",
+              "host": ["{{base_url}}"],
+              "path": ["login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set(\"editor_token\", response.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Get Current User",
           "request": {
             "method": "GET",
@@ -187,10 +250,1044 @@
       ]
     },
     {
-      "name": "User Routes",
+      "name": "Programs",
       "item": [
         {
-          "name": "Get Profile",
+          "name": "Get Programs (Public)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/programs?search=&per_page=10",
+              "host": ["{{base_url}}"],
+              "path": ["programs"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "per_page",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Program by ID (Public)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/programs/{{program_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["programs", "{{program_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Program (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Beasiswa Santri\",\n    \"description\": \"Program beasiswa untuk santri berprestasi dengan nilai akademik tinggi\",\n    \"image\": \"beasiswa-santri.jpg\",\n    \"external_link\": \"https://example.com/beasiswa\",\n    \"is_published\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/programs",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "programs"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set(\"program_id\", response.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Program (Admin Only)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Beasiswa Santri Updated\",\n    \"description\": \"Program beasiswa untuk santri berprestasi - Updated\",\n    \"image\": \"beasiswa-santri-updated.jpg\",\n    \"external_link\": \"https://example.com/beasiswa-updated\",\n    \"is_published\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/programs/{{program_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "programs", "{{program_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Program (Admin Only)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/programs/{{program_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "programs", "{{program_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Donation Packages",
+      "item": [
+        {
+          "name": "Get Donation Packages (Public)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/donation-packages?search=&category=&per_page=10",
+              "host": ["{{base_url}}"],
+              "path": ["donation-packages"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "category",
+                  "value": ""
+                },
+                {
+                  "key": "per_page",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Donation Package by ID (Public)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/donation-packages/{{package_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["donation-packages", "{{package_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Donation Package (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Infaq Rutin Bulanan\",\n    \"description\": \"Paket infaq rutin setiap bulan untuk operasional yayasan\",\n    \"amount\": 100000,\n    \"category\": \"infaq\",\n    \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/donation-packages",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "donation-packages"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set(\"package_id\", response.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Donation Package (Admin Only)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Infaq Rutin Bulanan Updated\",\n    \"description\": \"Paket infaq rutin setiap bulan untuk operasional yayasan - Updated\",\n    \"amount\": 150000,\n    \"category\": \"infaq\",\n    \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/donation-packages/{{package_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "donation-packages", "{{package_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Toggle Package Status (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/donation-packages/{{package_id}}/toggle-status",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "donation-packages", "{{package_id}}", "toggle-status"]
+            }
+          }
+        },
+        {
+          "name": "Delete Donation Package (Admin Only)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/donation-packages/{{package_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "donation-packages", "{{package_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Fundraisers",
+      "item": [
+        {
+          "name": "Get Fundraisers (Public)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/fundraisers?search=&status=&per_page=10",
+              "host": ["{{base_url}}"],
+              "path": ["fundraisers"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "status",
+                  "value": ""
+                },
+                {
+                  "key": "per_page",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Fundraiser by ID (Public)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/fundraisers/{{fundraiser_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["fundraisers", "{{fundraiser_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Fundraiser (Admin/Editor)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Renovasi Masjid\",\n    \"description\": \"Dana untuk renovasi masjid yayasan yang sudah berusia 20 tahun\",\n    \"target_amount\": 50000000,\n    \"deadline\": \"2025-12-31\",\n    \"image\": \"renovasi-masjid.jpg\",\n    \"status\": \"active\",\n    \"is_published\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/fundraisers",
+              "host": ["{{base_url}}"],
+              "path": ["fundraisers"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set(\"fundraiser_id\", response.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Fundraiser as Editor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{editor_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Bantuan Korban Bencana\",\n    \"description\": \"Galang dana untuk membantu korban bencana alam\",\n    \"target_amount\": 25000000,\n    \"deadline\": \"2025-08-31\",\n    \"image\": \"bantuan-bencana.jpg\",\n    \"status\": \"active\",\n    \"is_published\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/fundraisers",
+              "host": ["{{base_url}}"],
+              "path": ["fundraisers"]
+            }
+          }
+        },
+        {
+          "name": "Update Fundraiser (Admin/Editor Own)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Renovasi Masjid Updated\",\n    \"description\": \"Dana untuk renovasi masjid yayasan yang sudah berusia 20 tahun - Updated\",\n    \"target_amount\": 75000000,\n    \"current_amount\": 15000000,\n    \"deadline\": \"2025-12-31\",\n    \"image\": \"renovasi-masjid-updated.jpg\",\n    \"status\": \"active\",\n    \"is_published\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/fundraisers/{{fundraiser_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["fundraisers", "{{fundraiser_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Fundraiser Progress (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"current_amount\": 25000000,\n    \"note\": \"Update dari donasi offline saat event buka puasa bersama\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/fundraisers/{{fundraiser_id}}/update-progress",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "fundraisers", "{{fundraiser_id}}", "update-progress"]
+            }
+          }
+        },
+        {
+          "name": "Delete Fundraiser (Admin/Editor Own)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/fundraisers/{{fundraiser_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["fundraisers", "{{fundraiser_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Activities",
+      "item": [
+        {
+          "name": "Get Activities (Public)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/activities?search=&date_from=&date_to=&per_page=10",
+              "host": ["{{base_url}}"],
+              "path": ["activities"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "date_from",
+                  "value": ""
+                },
+                {
+                  "key": "date_to",
+                  "value": ""
+                },
+                {
+                  "key": "per_page",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Activity by ID (Public)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/activities/{{activity_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["activities", "{{activity_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Upcoming Activities (Public)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/activities/upcoming?limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["activities", "upcoming"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Past Activities (Public)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/activities/past?per_page=10",
+              "host": ["{{base_url}}"],
+              "path": ["activities", "past"],
+              "query": [
+                {
+                  "key": "per_page",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Activity (Admin/Editor)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Buka Puasa Bersama\",\n    \"description\": \"Acara buka puasa bersama anak yatim dan dhuafa\",\n    \"event_date\": \"2025-04-15\",\n    \"image\": \"buka-puasa.jpg\",\n    \"is_published\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/activities",
+              "host": ["{{base_url}}"],
+              "path": ["activities"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set(\"activity_id\", response.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Activity as Editor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{editor_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Bakti Sosial Ramadan\",\n    \"description\": \"Kegiatan bakti sosial membagikan takjil gratis\",\n    \"event_date\": \"2025-03-20\",\n    \"image\": \"bakti-sosial.jpg\",\n    \"is_published\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/activities",
+              "host": ["{{base_url}}"],
+              "path": ["activities"]
+            }
+          }
+        },
+        {
+          "name": "Update Activity (Admin/Editor Own)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Buka Puasa Bersama Updated\",\n    \"description\": \"Acara buka puasa bersama anak yatim dan dhuafa - Updated\",\n    \"event_date\": \"2025-04-16\",\n    \"image\": \"buka-puasa-updated.jpg\",\n    \"is_published\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/activities/{{activity_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["activities", "{{activity_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Activity (Admin/Editor Own)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/activities/{{activity_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["activities", "{{activity_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Donations",
+      "item": [
+        {
+          "name": "Create Donation (Public)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"donation_package_id\": 1,\n    \"fundraiser_id\": null,\n    \"title\": \"Donasi untuk Beasiswa Santri\",\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"phone\": \"+628123456789\",\n    \"category\": \"pendidikan\",\n    \"amount\": 500000,\n    \"proof_image\": \"proof-transfer.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/donations",
+              "host": ["{{base_url}}"],
+              "path": ["donations"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set(\"donation_id\", response.donation.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Donation for Fundraiser (Public)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"donation_package_id\": null,\n    \"fundraiser_id\": 1,\n    \"name\": \"Jane Doe\",\n    \"email\": \"jane@example.com\",\n    \"phone\": \"+628987654321\",\n    \"category\": \"infaq\",\n    \"amount\": 200000,\n    \"proof_image\": \"proof-jane.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/donations",
+              "host": ["{{base_url}}"],
+              "path": ["donations"]
+            }
+          }
+        },
+        {
+          "name": "Create Donation (Authenticated User)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"donation_package_id\": 1,\n    \"fundraiser_id\": null,\n    \"title\": \"Donasi Rutin Bulanan\",\n    \"name\": \"User Test\",\n    \"phone\": \"+628111222333\",\n    \"category\": \"infaq\",\n    \"amount\": 100000,\n    \"proof_image\": \"proof-user.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/donations",
+              "host": ["{{base_url}}"],
+              "path": ["donations"]
+            }
+          }
+        },
+        {
+          "name": "Get All Donations (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/donations?search=&status=&category=&date_from=&date_to=&per_page=10",
+              "host": ["{{base_url}}"],
+              "path": ["donations"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "status",
+                  "value": ""
+                },
+                {
+                  "key": "category",
+                  "value": ""
+                },
+                {
+                  "key": "date_from",
+                  "value": ""
+                },
+                {
+                  "key": "date_to",
+                  "value": ""
+                },
+                {
+                  "key": "per_page",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User Donations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user/donations?per_page=10",
+              "host": ["{{base_url}}"],
+              "path": ["user", "donations"],
+              "query": [
+                {
+                  "key": "per_page",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Donation by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/donations/{{donation_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["donations", "{{donation_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Manual Donation (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"fundraiser_id\": 1,\n    \"title\": \"Donasi Tunai Event\",\n    \"name\": \"Anonymous Donor\",\n    \"phone\": \"+628555666777\",\n    \"category\": \"infaq\",\n    \"amount\": 300000,\n    \"status\": \"confirmed\",\n    \"confirmation_note\": \"Donasi tunai saat event buka puasa bersama\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/donations/manual",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "donations", "manual"]
+            }
+          }
+        },
+        {
+          "name": "Confirm Donation (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"confirmation_note\": \"Transfer telah diverifikasi melalui rekening koran bank\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/donations/{{donation_id}}/confirm",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "donations", "{{donation_id}}", "confirm"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Donation (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"confirmation_note\": \"Bukti transfer tidak valid atau tidak ditemukan di rekening\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/donations/{{donation_id}}/cancel",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "donations", "{{donation_id}}", "cancel"]
+            }
+          }
+        },
+        {
+          "name": "Get Donation Statistics (Admin Only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/donations/statistics",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "donations", "statistics"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Management",
+      "item": [
+        {
+          "name": "Get User Profile",
           "request": {
             "method": "GET",
             "header": [
@@ -211,7 +1308,7 @@
           }
         },
         {
-          "name": "Update Profile",
+          "name": "Update User Profile",
           "request": {
             "method": "PUT",
             "header": [
@@ -230,7 +1327,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"Updated Name\",\n    \"email\": \"updated@example.com\",\n    \"phone\": \"+9876543210\"\n}"
+              "raw": "{\n    \"name\": \"Updated User Name\",\n    \"email\": \"updated@example.com\",\n    \"phone\": \"+628999888777\",\n    \"password\": \"newpassword123\",\n    \"password_confirmation\": \"newpassword123\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/user/profile",
@@ -242,7 +1339,7 @@
       ]
     },
     {
-      "name": "Admin Routes",
+      "name": "Admin Management",
       "item": [
         {
           "name": "Admin Dashboard",
@@ -266,7 +1363,7 @@
           }
         },
         {
-          "name": "Get Users",
+          "name": "Get All Users (Admin Only)",
           "request": {
             "method": "GET",
             "header": [
@@ -280,10 +1377,18 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/admin/users?per_page=10",
+              "raw": "{{base_url}}/admin/users?search=&role=&per_page=10",
               "host": ["{{base_url}}"],
               "path": ["admin", "users"],
               "query": [
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "role",
+                  "value": ""
+                },
                 {
                   "key": "per_page",
                   "value": "10"
@@ -293,7 +1398,7 @@
           }
         },
         {
-          "name": "Toggle User Status",
+          "name": "Toggle User Status (Admin Only)",
           "request": {
             "method": "POST",
             "header": [
@@ -312,7 +1417,12 @@
               "path": ["admin", "users", "{{user_id}}", "toggle-status"]
             }
           }
-        },
+        }
+      ]
+    },
+    {
+      "name": "Authorization Tests",
+      "item": [
         {
           "name": "Admin Dashboard (User Token - Should Fail)",
           "request": {
@@ -331,6 +1441,52 @@
               "raw": "{{base_url}}/admin/dashboard",
               "host": ["{{base_url}}"],
               "path": ["admin", "dashboard"]
+            }
+          }
+        },
+        {
+          "name": "Create Program (User Token - Should Fail)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Unauthorized Program\",\n    \"description\": \"This should fail\",\n    \"image\": \"test.jpg\",\n    \"is_published\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/programs",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "programs"]
+            }
+          }
+        },
+        {
+          "name": "Access Public Endpoint Without Token",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/programs",
+              "host": ["{{base_url}}"],
+              "path": ["programs"]
             }
           }
         }
