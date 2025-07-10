@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Daarul Ummahaat API Documentation</title>
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui.css"
+        />
+        <style>
+            html {
+                box-sizing: border-box;
+                overflow: -moz-scrollbars-vertical;
+                overflow-y: scroll;
+            }
+            *,
+            *:before,
+            *:after {
+                box-sizing: inherit;
+            }
+            body {
+                margin: 0;
+                background: #fafafa;
+            }
+            .swagger-ui .topbar {
+                background-color: #2c5530;
+            }
+            .swagger-ui .topbar .download-url-wrapper .select-label {
+                color: #fff;
+            }
+            .swagger-ui .topbar .download-url-wrapper input[type="text"] {
+                border: 2px solid #3b7441;
+            }
+            .swagger-ui .topbar .download-url-wrapper .download-url-button {
+                background: #3b7441;
+                color: #fff;
+                border: 2px solid #3b7441;
+            }
+            .swagger-ui .info .title {
+                color: #2c5530;
+            }
+            .swagger-ui .scheme-container {
+                background: #fff;
+                box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+            }
+            .custom-header {
+                background: linear-gradient(135deg, #2c5530 0%, #3b7441 100%);
+                color: white;
+                padding: 20px;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            .custom-header h1 {
+                margin: 0;
+                font-size: 2.5em;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            }
+            .custom-header p {
+                margin: 10px 0 0 0;
+                font-size: 1.1em;
+                opacity: 0.9;
+            }
+            .server-info {
+                background: #e8f5e8;
+                border: 1px solid #3b7441;
+                border-radius: 8px;
+                padding: 15px;
+                margin: 20px;
+                text-align: center;
+            }
+            .server-info h3 {
+                color: #2c5530;
+                margin: 0 0 10px 0;
+            }
+            .server-info code {
+                background: #2c5530;
+                color: white;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-family: monospace;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="custom-header">
+            <h1>🕌 Daarul Ummahaat API</h1>
+            <p>Complete Donation Management System API Documentation</p>
+        </div>
+
+        <div class="server-info">
+            <h3>🚀 Quick Start</h3>
+            <p>
+                <strong>Laravel Server:</strong>
+                <code>php artisan serve</code> (http://localhost:8000)
+            </p>
+            <p>
+                <strong>Documentation Server:</strong>
+                <code>python -m http.server 8080</code> (http://localhost:8080)
+            </p>
+            <p>
+                <strong>Test Accounts:</strong> admin@example.com,
+                user@example.com, editor@example.com (password: "password")
+            </p>
+        </div>
+
+        <div id="swagger-ui"></div>
+
+        <script src="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-bundle.js"></script>
+        <script src="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-standalone-preset.js"></script>
+        <script>
+            // Embedded YAML spec for better compatibility
+            const spec = {
+                openapi: "3.0.3",
+                info: {
+                    title: "Daarul Ummahaat Donation Management API",
+                    description:
+                        "Complete API for Daarul Ummahaat donation management system.\n\nThis API provides comprehensive functionality for managing donations, programs, fundraisers, activities, and user management for a religious foundation.\n\n## Authentication\nThe API uses Bearer token authentication with Laravel Sanctum.\n\n## User Roles\n- **Admin**: Full access to all endpoints\n- **Editor**: Can create/edit fundraisers and activities\n- **User**: Can donate and manage their profile\n- **Public**: Can view published content and make donations\n\n## Base URL\nhttp://localhost:8000/api",
+                    version: "2.0.0",
+                    contact: {
+                        name: "Daarul Ummahaat Development Team",
+                        email: "admin@daarul.com",
+                    },
+                    license: {
+                        name: "MIT License",
+                        url: "https://opensource.org/licenses/MIT",
+                    },
+                },
+                servers: [
+                    {
+                        url: "http://localhost:8000/api",
+                        description: "Local development server",
+                    },
+                    {
+                        url: "https://api.daarul.com/api",
+                        description: "Production server",
+                    },
+                ],
+                security: [
+                    {
+                        BearerAuth: [],
+                    },
+                ],
+                paths: {
+                    "/login": {
+                        post: {
+                            tags: ["Authentication"],
+                            summary: "User login",
+                            description:
+                                "Authenticate user and get access token",
+                            security: [],
+                            requestBody: {
+                                required: true,
+                                content: {
+                                    "application/json": {
+                                        schema: {
+                                            type: "object",
+                                            required: ["email", "password"],
+                                            properties: {
+                                                email: {
+                                                    type: "string",
+                                                    format: "email",
+                                                    example:
+                                                        "admin@example.com",
+                                                },
+                                                password: {
+                                                    type: "string",
+                                                    format: "password",
+                                                    example: "password",
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            responses: {
+                                200: {
+                                    description: "Login successful",
+                                    content: {
+                                        "application/json": {
+                                            schema: {
+                                                type: "object",
+                                                properties: {
+                                                    token: {
+                                                        type: "string",
+                                                        example:
+                                                            "1|AbCdEfGhIjKlMnOpQrStUvWxYz",
+                                                    },
+                                                    user: {
+                                                        $ref: "#/components/schemas/User",
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                                422: {
+                                    description: "Invalid credentials",
+                                },
+                            },
+                        },
+                    },
+                    "/programs": {
+                        get: {
+                            tags: ["Programs"],
+                            summary: "Get all programs",
+                            description:
+                                "Get list of all published programs (public access)",
+                            security: [],
+                            parameters: [
+                                {
+                                    in: "query",
+                                    name: "search",
+                                    schema: {
+                                        type: "string",
+                                    },
+                                    description:
+                                        "Search programs by title or description",
+                                },
+                                {
+                                    in: "query",
+                                    name: "per_page",
+                                    schema: {
+                                        type: "integer",
+                                        default: 15,
+                                        minimum: 1,
+                                        maximum: 100,
+                                    },
+                                    description: "Number of items per page",
+                                },
+                            ],
+                            responses: {
+                                200: {
+                                    description: "List of programs",
+                                },
+                            },
+                        },
+                    },
+                    "/donations": {
+                        post: {
+                            tags: ["Donations"],
+                            summary: "Create donation",
+                            description:
+                                "Create a new donation (public access for anonymous donations)",
+                            security: [],
+                            requestBody: {
+                                required: true,
+                                content: {
+                                    "application/json": {
+                                        schema: {
+                                            type: "object",
+                                            required: ["category", "amount"],
+                                            properties: {
+                                                donation_package_id: {
+                                                    type: "integer",
+                                                    nullable: true,
+                                                    example: 1,
+                                                },
+                                                fundraiser_id: {
+                                                    type: "integer",
+                                                    nullable: true,
+                                                    example: null,
+                                                },
+                                                name: {
+                                                    type: "string",
+                                                    example: "John Doe",
+                                                },
+                                                email: {
+                                                    type: "string",
+                                                    format: "email",
+                                                    example: "john@example.com",
+                                                },
+                                                phone: {
+                                                    type: "string",
+                                                    example: "+628123456789",
+                                                },
+                                                category: {
+                                                    type: "string",
+                                                    enum: [
+                                                        "zakat",
+                                                        "infaq",
+                                                        "sadaqah",
+                                                        "wakaf",
+                                                        "pendidikan",
+                                                        "kesehatan",
+                                                        "sosial",
+                                                        "darurat",
+                                                    ],
+                                                    example: "pendidikan",
+                                                },
+                                                amount: {
+                                                    type: "number",
+                                                    format: "float",
+                                                    minimum: 0,
+                                                    example: 500000,
+                                                },
+                                                proof_image: {
+                                                    type: "string",
+                                                    example:
+                                                        "proof-transfer.jpg",
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            responses: {
+                                201: {
+                                    description:
+                                        "Donation created successfully",
+                                },
+                                422: {
+                                    description: "Validation error",
+                                },
+                            },
+                        },
+                    },
+                },
+                components: {
+                    securitySchemes: {
+                        BearerAuth: {
+                            type: "http",
+                            scheme: "bearer",
+                            bearerFormat: "JWT",
+                            description: "Laravel Sanctum Bearer Token",
+                        },
+                    },
+                    schemas: {
+                        User: {
+                            type: "object",
+                            properties: {
+                                id: {
+                                    type: "integer",
+                                    example: 1,
+                                },
+                                name: {
+                                    type: "string",
+                                    example: "John Doe",
+                                },
+                                email: {
+                                    type: "string",
+                                    format: "email",
+                                    example: "john@example.com",
+                                },
+                                role_id: {
+                                    type: "integer",
+                                    example: 2,
+                                },
+                                phone: {
+                                    type: "string",
+                                    example: "+1234567890",
+                                },
+                            },
+                        },
+                    },
+                },
+                tags: [
+                    {
+                        name: "Authentication",
+                        description:
+                            "User authentication and session management",
+                    },
+                    {
+                        name: "Programs",
+                        description: "Program management (Admin only CRUD)",
+                    },
+                    {
+                        name: "Donations",
+                        description: "Donation management and processing",
+                    },
+                ],
+            };
+
+            window.onload = function () {
+                // Build a system
+                const ui = SwaggerUIBundle({
+                    spec: spec, // Use embedded spec instead of URL
+                    dom_id: "#swagger-ui",
+                    deepLinking: true,
+                    presets: [
+                        SwaggerUIBundle.presets.apis,
+                        SwaggerUIStandalonePreset,
+                    ],
+                    plugins: [SwaggerUIBundle.plugins.DownloadUrl],
+                    layout: "StandaloneLayout",
+                    validatorUrl: null,
+                    tryItOutEnabled: true,
+                    requestInterceptor: (request) => {
+                        console.log("Request:", request);
+                        return request;
+                    },
+                    responseInterceptor: (response) => {
+                        console.log("Response:", response);
+                        return response;
+                    },
+                    onComplete: () => {
+                        console.log("Swagger UI loaded successfully");
+                    },
+                    defaultModelsExpandDepth: 2,
+                    defaultModelExpandDepth: 2,
+                    docExpansion: "list",
+                    filter: true,
+                    showRequestHeaders: true,
+                    showCommonExtensions: true,
+                    supportedSubmitMethods: [
+                        "get",
+                        "post",
+                        "put",
+                        "delete",
+                        "patch",
+                    ],
+                });
+
+                // Add custom styling after load
+                setTimeout(() => {
+                    const info = document.querySelector(".swagger-ui .info");
+                    if (info) {
+                        const customBadge = document.createElement("div");
+                        customBadge.innerHTML = `
+                        <div style="
+                            background: linear-gradient(135deg, #2c5530 0%, #3b7441 100%);
+                            color: white;
+                            padding: 10px 20px;
+                            border-radius: 8px;
+                            margin: 20px 0;
+                            text-align: center;
+                            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                        ">
+                            <strong>🚀 Ready for Testing</strong><br>
+                            <small>Use the "Try it out" button on each endpoint to test the API directly</small><br>
+                            <small style="margin-top: 10px; display: block;">
+                                📝 <strong>Note:</strong> This is a simplified version. For the full API documentation, 
+                                serve the files via HTTP server and access http://localhost:8080/swagger-ui.html
+                            </small>
+                        </div>
+                    `;
+                        info.appendChild(customBadge);
+                    }
+                }, 1000);
+            };
+        </script>
+    </body>
+</html>

@@ -1,0 +1,2047 @@
+openapi: 3.0.3
+info:
+  title: Daarul Ummahaat Donation Management API
+  description: |
+    Complete API for Daarul Ummahaat donation management system.
+
+    This API provides comprehensive functionality for managing donations, programs, fundraisers, activities, and user management for a religious foundation.
+
+    ## Authentication
+    The API uses Bearer token authentication with Laravel Sanctum.
+
+    ## User Roles
+    - **Admin**: Full access to all endpoints
+    - **Editor**: Can create/edit fundraisers and activities
+    - **User**: Can donate and manage their profile
+    - **Public**: Can view published content and make donations
+
+    ## Base URL
+    http://localhost:8000/api
+
+  version: "2.0.0"
+  contact:
+    name: Daarul Ummahaat Development Team
+    email: admin@daarul.com
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8000/api
+    description: Local development server
+  - url: https://api.daarul.com/api
+    description: Production server
+
+security:
+  - BearerAuth: []
+
+paths:
+  # Authentication Endpoints
+  /login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticate user and get access token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: admin@example.com
+                password:
+                  type: string
+                  format: password
+                  example: password
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "1|AbCdEfGhIjKlMnOpQrStUvWxYz"
+                  user:
+                    $ref: "#/components/schemas/User"
+        "422":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+
+  /register:
+    post:
+      tags:
+        - Authentication
+      summary: User registration
+      description: Register a new user account
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+                - password_confirmation
+              properties:
+                name:
+                  type: string
+                  example: John Doe
+                email:
+                  type: string
+                  format: email
+                  example: john@example.com
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  example: password123
+                password_confirmation:
+                  type: string
+                  format: password
+                  example: password123
+                phone:
+                  type: string
+                  example: "+1234567890"
+      responses:
+        "201":
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    $ref: "#/components/schemas/User"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+
+  /logout:
+    post:
+      tags:
+        - Authentication
+      summary: User logout
+      description: Logout user and revoke access token
+      responses:
+        "200":
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Logged out successfully"
+
+  /user:
+    get:
+      tags:
+        - Authentication
+      summary: Get current user
+      description: Get authenticated user information
+      responses:
+        "200":
+          description: User information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  # Programs Endpoints
+  /programs:
+    get:
+      tags:
+        - Programs
+      summary: Get all programs
+      description: Get list of all published programs (public access)
+      security: []
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search programs by title or description
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 15
+            minimum: 1
+            maximum: 100
+          description: Number of items per page
+      responses:
+        "200":
+          description: List of programs
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginationMeta"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Program"
+
+  /programs/{id}:
+    get:
+      tags:
+        - Programs
+      summary: Get program by ID
+      description: Get detailed information about a specific program
+      security: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Program ID
+      responses:
+        "200":
+          description: Program details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Program"
+        "404":
+          description: Program not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /admin/programs:
+    post:
+      tags:
+        - Programs
+        - Admin
+      summary: Create program (Admin only)
+      description: Create a new program
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProgramInput"
+      responses:
+        "201":
+          description: Program created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Program"
+        "403":
+          description: Forbidden - Admin access required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+
+  /admin/programs/{program}:
+    put:
+      tags:
+        - Programs
+        - Admin
+      summary: Update program (Admin only)
+      description: Update an existing program
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: program
+          required: true
+          schema:
+            type: integer
+          description: Program ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProgramInput"
+      responses:
+        "200":
+          description: Program updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Program"
+        "403":
+          description: Forbidden - Admin access required
+        "404":
+          description: Program not found
+        "422":
+          description: Validation error
+
+    delete:
+      tags:
+        - Programs
+        - Admin
+      summary: Delete program (Admin only)
+      description: Delete a program
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: program
+          required: true
+          schema:
+            type: integer
+          description: Program ID
+      responses:
+        "200":
+          description: Program deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Program deleted successfully"
+        "403":
+          description: Forbidden - Admin access required
+        "404":
+          description: Program not found
+
+  # Donation Packages Endpoints
+  /donation-packages:
+    get:
+      tags:
+        - Donation Packages
+      summary: Get all donation packages
+      description: Get list of all active donation packages (public access)
+      security: []
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search packages by title or description
+        - in: query
+          name: category
+          schema:
+            type: string
+            enum:
+              [
+                zakat,
+                infaq,
+                sadaqah,
+                wakaf,
+                pendidikan,
+                kesehatan,
+                sosial,
+                darurat,
+              ]
+          description: Filter by category
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 15
+          description: Number of items per page
+      responses:
+        "200":
+          description: List of donation packages
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginationMeta"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/DonationPackage"
+
+  /donation-packages/{id}:
+    get:
+      tags:
+        - Donation Packages
+      summary: Get donation package by ID
+      description: Get detailed information about a specific donation package
+      security: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Donation package ID
+      responses:
+        "200":
+          description: Donation package details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DonationPackage"
+        "404":
+          description: Donation package not found
+
+  /admin/donation-packages:
+    post:
+      tags:
+        - Donation Packages
+        - Admin
+      summary: Create donation package (Admin only)
+      description: Create a new donation package
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DonationPackageInput"
+      responses:
+        "201":
+          description: Donation package created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DonationPackage"
+        "403":
+          description: Forbidden - Admin access required
+        "422":
+          description: Validation error
+
+  /admin/donation-packages/{donationPackage}:
+    put:
+      tags:
+        - Donation Packages
+        - Admin
+      summary: Update donation package (Admin only)
+      description: Update an existing donation package
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: donationPackage
+          required: true
+          schema:
+            type: integer
+          description: Donation package ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DonationPackageInput"
+      responses:
+        "200":
+          description: Donation package updated successfully
+        "403":
+          description: Forbidden - Admin access required
+        "404":
+          description: Donation package not found
+        "422":
+          description: Validation error
+
+    delete:
+      tags:
+        - Donation Packages
+        - Admin
+      summary: Delete donation package (Admin only)
+      description: Delete a donation package
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: donationPackage
+          required: true
+          schema:
+            type: integer
+          description: Donation package ID
+      responses:
+        "200":
+          description: Donation package deleted successfully
+        "403":
+          description: Forbidden - Admin access required
+        "404":
+          description: Donation package not found
+
+  /admin/donation-packages/{donationPackage}/toggle-status:
+    post:
+      tags:
+        - Donation Packages
+        - Admin
+      summary: Toggle package status (Admin only)
+      description: Toggle active/inactive status of a donation package
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: donationPackage
+          required: true
+          schema:
+            type: integer
+          description: Donation package ID
+      responses:
+        "200":
+          description: Package status toggled successfully
+        "403":
+          description: Forbidden - Admin access required
+        "404":
+          description: Donation package not found
+
+  # Fundraisers Endpoints
+  /fundraisers:
+    get:
+      tags:
+        - Fundraisers
+      summary: Get all fundraisers
+      description: Get list of all active fundraisers (public access)
+      security: []
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search fundraisers by title or description
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [draft, active, completed, paused]
+          description: Filter by status
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 15
+          description: Number of items per page
+      responses:
+        "200":
+          description: List of fundraisers
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginationMeta"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Fundraiser"
+
+    post:
+      tags:
+        - Fundraisers
+        - Admin/Editor
+      summary: Create fundraiser (Admin/Editor only)
+      description: Create a new fundraiser
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FundraiserInput"
+      responses:
+        "201":
+          description: Fundraiser created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Fundraiser"
+        "403":
+          description: Forbidden - Admin or Editor access required
+        "422":
+          description: Validation error
+
+  /fundraisers/{id}:
+    get:
+      tags:
+        - Fundraisers
+      summary: Get fundraiser by ID
+      description: Get detailed information about a specific fundraiser
+      security: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Fundraiser ID
+      responses:
+        "200":
+          description: Fundraiser details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Fundraiser"
+        "404":
+          description: Fundraiser not found
+
+  /fundraisers/{fundraiser}:
+    put:
+      tags:
+        - Fundraisers
+        - Admin/Editor
+      summary: Update fundraiser (Admin/Editor own)
+      description: Update an existing fundraiser (Admin can update any, Editor can only update their own)
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: fundraiser
+          required: true
+          schema:
+            type: integer
+          description: Fundraiser ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FundraiserInput"
+      responses:
+        "200":
+          description: Fundraiser updated successfully
+        "403":
+          description: Forbidden - Admin or Editor access required
+        "404":
+          description: Fundraiser not found
+        "422":
+          description: Validation error
+
+    delete:
+      tags:
+        - Fundraisers
+        - Admin/Editor
+      summary: Delete fundraiser (Admin/Editor own)
+      description: Delete a fundraiser (Admin can delete any, Editor can only delete their own)
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: fundraiser
+          required: true
+          schema:
+            type: integer
+          description: Fundraiser ID
+      responses:
+        "200":
+          description: Fundraiser deleted successfully
+        "403":
+          description: Forbidden - Admin or Editor access required
+        "404":
+          description: Fundraiser not found
+
+  /admin/fundraisers/{fundraiser}/update-progress:
+    post:
+      tags:
+        - Fundraisers
+        - Admin
+      summary: Update fundraiser progress (Admin only)
+      description: Update the current amount raised for a fundraiser
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: fundraiser
+          required: true
+          schema:
+            type: integer
+          description: Fundraiser ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - current_amount
+              properties:
+                current_amount:
+                  type: number
+                  format: float
+                  minimum: 0
+                  example: 2500000
+                note:
+                  type: string
+                  example: "Update from offline donations during event"
+      responses:
+        "200":
+          description: Fundraiser progress updated successfully
+        "403":
+          description: Forbidden - Admin access required
+        "404":
+          description: Fundraiser not found
+        "422":
+          description: Validation error
+
+  # Activities Endpoints
+  /activities:
+    get:
+      tags:
+        - Activities
+      summary: Get all activities
+      description: Get list of all published activities (public access)
+      security: []
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search activities by title or description
+        - in: query
+          name: date_from
+          schema:
+            type: string
+            format: date
+          description: Filter activities from this date
+        - in: query
+          name: date_to
+          schema:
+            type: string
+            format: date
+          description: Filter activities to this date
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 15
+          description: Number of items per page
+      responses:
+        "200":
+          description: List of activities
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginationMeta"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Activity"
+
+    post:
+      tags:
+        - Activities
+        - Admin/Editor
+      summary: Create activity (Admin/Editor only)
+      description: Create a new activity
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActivityInput"
+      responses:
+        "201":
+          description: Activity created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Activity"
+        "403":
+          description: Forbidden - Admin or Editor access required
+        "422":
+          description: Validation error
+
+  /activities/{id}:
+    get:
+      tags:
+        - Activities
+      summary: Get activity by ID
+      description: Get detailed information about a specific activity
+      security: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Activity ID
+      responses:
+        "200":
+          description: Activity details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Activity"
+        "404":
+          description: Activity not found
+
+  /activities/upcoming:
+    get:
+      tags:
+        - Activities
+      summary: Get upcoming activities
+      description: Get list of upcoming published activities (public access)
+      security: []
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 5
+            minimum: 1
+            maximum: 20
+          description: Number of activities to return
+      responses:
+        "200":
+          description: List of upcoming activities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Activity"
+
+  /activities/past:
+    get:
+      tags:
+        - Activities
+      summary: Get past activities
+      description: Get list of past published activities (public access)
+      security: []
+      parameters:
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 15
+          description: Number of items per page
+      responses:
+        "200":
+          description: List of past activities
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginationMeta"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Activity"
+
+  /activities/{activity}:
+    put:
+      tags:
+        - Activities
+        - Admin/Editor
+      summary: Update activity (Admin/Editor own)
+      description: Update an existing activity (Admin can update any, Editor can only update their own)
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: activity
+          required: true
+          schema:
+            type: integer
+          description: Activity ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActivityInput"
+      responses:
+        "200":
+          description: Activity updated successfully
+        "403":
+          description: Forbidden - Admin or Editor access required
+        "404":
+          description: Activity not found
+        "422":
+          description: Validation error
+
+    delete:
+      tags:
+        - Activities
+        - Admin/Editor
+      summary: Delete activity (Admin/Editor own)
+      description: Delete an activity (Admin can delete any, Editor can only delete their own)
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: activity
+          required: true
+          schema:
+            type: integer
+          description: Activity ID
+      responses:
+        "200":
+          description: Activity deleted successfully
+        "403":
+          description: Forbidden - Admin or Editor access required
+        "404":
+          description: Activity not found
+
+  # Donations Endpoints
+  /donations:
+    get:
+      tags:
+        - Donations
+        - Admin
+      summary: Get all donations (Admin only)
+      description: Get list of all donations with filters
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search donations by donor name or email
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [pending, confirmed, cancelled]
+          description: Filter by status
+        - in: query
+          name: category
+          schema:
+            type: string
+            enum:
+              [
+                zakat,
+                infaq,
+                sadaqah,
+                wakaf,
+                pendidikan,
+                kesehatan,
+                sosial,
+                darurat,
+              ]
+          description: Filter by category
+        - in: query
+          name: date_from
+          schema:
+            type: string
+            format: date
+          description: Filter donations from this date
+        - in: query
+          name: date_to
+          schema:
+            type: string
+            format: date
+          description: Filter donations to this date
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 15
+          description: Number of items per page
+      responses:
+        "200":
+          description: List of donations
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginationMeta"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Donation"
+        "403":
+          description: Forbidden - Admin access required
+
+    post:
+      tags:
+        - Donations
+      summary: Create donation
+      description: Create a new donation (public access for anonymous donations)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DonationInput"
+      responses:
+        "201":
+          description: Donation created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Donation created successfully"
+                  donation:
+                    $ref: "#/components/schemas/Donation"
+        "422":
+          description: Validation error
+
+  /donations/{id}:
+    get:
+      tags:
+        - Donations
+      summary: Get donation by ID
+      description: Get detailed information about a specific donation
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Donation ID
+      responses:
+        "200":
+          description: Donation details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Donation"
+        "403":
+          description: Forbidden - Admin access required or own donation for users
+        "404":
+          description: Donation not found
+
+  /user/donations:
+    get:
+      tags:
+        - Donations
+        - User
+      summary: Get user donations
+      description: Get list of authenticated user's donations
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 15
+          description: Number of items per page
+      responses:
+        "200":
+          description: List of user donations
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginationMeta"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Donation"
+        "401":
+          description: Unauthorized
+
+  /admin/donations/manual:
+    post:
+      tags:
+        - Donations
+        - Admin
+      summary: Create manual donation (Admin only)
+      description: Create a manual donation entry (bypass normal payment flow)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/DonationInput"
+                - type: object
+                  properties:
+                    status:
+                      type: string
+                      enum: [confirmed, pending]
+                      default: confirmed
+                    confirmation_note:
+                      type: string
+                      example: "Manual entry by admin from cash donation"
+      responses:
+        "201":
+          description: Manual donation created successfully
+        "403":
+          description: Forbidden - Admin access required
+        "422":
+          description: Validation error
+
+  /admin/donations/{donation}/confirm:
+    post:
+      tags:
+        - Donations
+        - Admin
+      summary: Confirm donation (Admin only)
+      description: Confirm a pending donation
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: donation
+          required: true
+          schema:
+            type: integer
+          description: Donation ID
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                confirmation_note:
+                  type: string
+                  example: "Transfer verified through bank statement"
+      responses:
+        "200":
+          description: Donation confirmed successfully
+        "403":
+          description: Forbidden - Admin access required
+        "404":
+          description: Donation not found
+        "422":
+          description: Validation error
+
+  /admin/donations/{donation}/cancel:
+    post:
+      tags:
+        - Donations
+        - Admin
+      summary: Cancel donation (Admin only)
+      description: Cancel a pending donation
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: donation
+          required: true
+          schema:
+            type: integer
+          description: Donation ID
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                confirmation_note:
+                  type: string
+                  example: "Invalid transfer proof or payment not received"
+      responses:
+        "200":
+          description: Donation cancelled successfully
+        "403":
+          description: Forbidden - Admin access required
+        "404":
+          description: Donation not found
+
+  /admin/donations/statistics:
+    get:
+      tags:
+        - Donations
+        - Admin
+      summary: Get donation statistics (Admin only)
+      description: Get comprehensive donation statistics and analytics
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Donation statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_donations:
+                    type: integer
+                    example: 1250
+                  total_amount:
+                    type: number
+                    format: float
+                    example: 125000000
+                  confirmed_donations:
+                    type: integer
+                    example: 1100
+                  confirmed_amount:
+                    type: number
+                    format: float
+                    example: 115000000
+                  pending_donations:
+                    type: integer
+                    example: 120
+                  pending_amount:
+                    type: number
+                    format: float
+                    example: 8500000
+                  cancelled_donations:
+                    type: integer
+                    example: 30
+                  cancelled_amount:
+                    type: number
+                    format: float
+                    example: 1500000
+                  by_category:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      properties:
+                        count:
+                          type: integer
+                        amount:
+                          type: number
+                          format: float
+                  monthly_stats:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        month:
+                          type: string
+                          example: "2025-01"
+                        count:
+                          type: integer
+                        amount:
+                          type: number
+                          format: float
+        "403":
+          description: Forbidden - Admin access required
+
+  # User Management Endpoints
+  /user/profile:
+    get:
+      tags:
+        - User Management
+      summary: Get user profile
+      description: Get authenticated user's profile information
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+
+    put:
+      tags:
+        - User Management
+      summary: Update user profile
+      description: Update authenticated user's profile information
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Updated Name"
+                phone:
+                  type: string
+                  example: "+1234567890"
+                address:
+                  type: string
+                  example: "123 Main Street, City, Country"
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  example: "newpassword123"
+                password_confirmation:
+                  type: string
+                  format: password
+                  example: "newpassword123"
+      responses:
+        "200":
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+        "422":
+          description: Validation error
+
+  # Admin Management Endpoints
+  /admin/dashboard:
+    get:
+      tags:
+        - Admin Management
+      summary: Get admin dashboard
+      description: Get dashboard statistics and overview for admin
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Admin dashboard data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_users:
+                    type: integer
+                    example: 1250
+                  total_donations:
+                    type: integer
+                    example: 5680
+                  total_amount:
+                    type: number
+                    format: float
+                    example: 125000000
+                  pending_donations:
+                    type: integer
+                    example: 45
+                  active_fundraisers:
+                    type: integer
+                    example: 12
+                  recent_donations:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Donation"
+                  recent_users:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/User"
+        "403":
+          description: Forbidden - Admin access required
+
+  /admin/users:
+    get:
+      tags:
+        - Admin Management
+      summary: Get all users (Admin only)
+      description: Get list of all users with filters
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search users by name or email
+        - in: query
+          name: role
+          schema:
+            type: string
+            enum: [admin, user, editor]
+          description: Filter by role
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 15
+          description: Number of items per page
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginationMeta"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/User"
+        "403":
+          description: Forbidden - Admin access required
+
+  /admin/users/{user}/toggle-status:
+    post:
+      tags:
+        - Admin Management
+      summary: Toggle user status (Admin only)
+      description: Toggle active/inactive status of a user
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: user
+          required: true
+          schema:
+            type: integer
+          description: User ID
+      responses:
+        "200":
+          description: User status toggled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User status updated successfully"
+                  user:
+                    $ref: "#/components/schemas/User"
+        "403":
+          description: Forbidden - Admin access required
+        "404":
+          description: User not found
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Laravel Sanctum Bearer Token
+
+  schemas:
+    # User Schema
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        email_verified_at:
+          type: string
+          format: date-time
+          nullable: true
+        role_id:
+          type: integer
+          example: 2
+        phone:
+          type: string
+          example: "+1234567890"
+        address:
+          type: string
+          example: "123 Main Street, City, Country"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+        role:
+          $ref: "#/components/schemas/Role"
+
+    # Role Schema
+    Role:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          enum: [admin, user, editor]
+          example: "admin"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # Program Schema
+    Program:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Beasiswa Santri"
+        description:
+          type: string
+          example: "Program beasiswa untuk santri berprestasi"
+        slug:
+          type: string
+          example: "beasiswa-santri"
+        image:
+          type: string
+          example: "beasiswa.jpg"
+        external_link:
+          type: string
+          format: uri
+          example: "https://example.com/beasiswa"
+        is_published:
+          type: boolean
+          example: true
+        created_by:
+          type: integer
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+        creator:
+          $ref: "#/components/schemas/User"
+
+    ProgramInput:
+      type: object
+      required:
+        - title
+        - description
+        - image
+      properties:
+        title:
+          type: string
+          example: "Beasiswa Santri"
+        description:
+          type: string
+          example: "Program beasiswa untuk santri berprestasi"
+        image:
+          type: string
+          example: "beasiswa.jpg"
+        external_link:
+          type: string
+          format: uri
+          example: "https://example.com/beasiswa"
+        is_published:
+          type: boolean
+          default: false
+
+    # Donation Package Schema
+    DonationPackage:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Infaq Rutin Bulanan"
+        description:
+          type: string
+          example: "Paket infaq rutin setiap bulan"
+        amount:
+          type: number
+          format: float
+          example: 100000
+        category:
+          type: string
+          enum:
+            [
+              zakat,
+              infaq,
+              sadaqah,
+              wakaf,
+              pendidikan,
+              kesehatan,
+              sosial,
+              darurat,
+            ]
+          example: "infaq"
+        is_active:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    DonationPackageInput:
+      type: object
+      required:
+        - title
+        - description
+        - amount
+        - category
+      properties:
+        title:
+          type: string
+          example: "Infaq Rutin Bulanan"
+        description:
+          type: string
+          example: "Paket infaq rutin setiap bulan"
+        amount:
+          type: number
+          format: float
+          minimum: 0
+          example: 100000
+        category:
+          type: string
+          enum:
+            [
+              zakat,
+              infaq,
+              sadaqah,
+              wakaf,
+              pendidikan,
+              kesehatan,
+              sosial,
+              darurat,
+            ]
+          example: "infaq"
+        is_active:
+          type: boolean
+          default: true
+
+    # Fundraiser Schema
+    Fundraiser:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Renovasi Masjid"
+        description:
+          type: string
+          example: "Dana untuk renovasi masjid yayasan"
+        target_amount:
+          type: number
+          format: float
+          example: 50000000
+        current_amount:
+          type: number
+          format: float
+          example: 15000000
+        deadline:
+          type: string
+          format: date
+          example: "2025-12-31"
+        image:
+          type: string
+          example: "renovasi-masjid.jpg"
+        status:
+          type: string
+          enum: [draft, active, completed, paused]
+          example: "active"
+        is_published:
+          type: boolean
+          example: true
+        created_by:
+          type: integer
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+        creator:
+          $ref: "#/components/schemas/User"
+        progress_percentage:
+          type: number
+          format: float
+          example: 30.0
+
+    FundraiserInput:
+      type: object
+      required:
+        - title
+        - description
+        - target_amount
+        - deadline
+        - image
+      properties:
+        title:
+          type: string
+          example: "Renovasi Masjid"
+        description:
+          type: string
+          example: "Dana untuk renovasi masjid yayasan"
+        target_amount:
+          type: number
+          format: float
+          minimum: 0
+          example: 50000000
+        current_amount:
+          type: number
+          format: float
+          minimum: 0
+          default: 0
+          example: 0
+        deadline:
+          type: string
+          format: date
+          example: "2025-12-31"
+        image:
+          type: string
+          example: "renovasi-masjid.jpg"
+        status:
+          type: string
+          enum: [draft, active, completed, paused]
+          default: "draft"
+        is_published:
+          type: boolean
+          default: false
+
+    # Activity Schema
+    Activity:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Buka Puasa Bersama"
+        description:
+          type: string
+          example: "Acara buka puasa bersama anak yatim"
+        event_date:
+          type: string
+          format: date
+          example: "2025-04-15"
+        image:
+          type: string
+          example: "buka-puasa.jpg"
+        is_published:
+          type: boolean
+          example: true
+        created_by:
+          type: integer
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+        creator:
+          $ref: "#/components/schemas/User"
+
+    ActivityInput:
+      type: object
+      required:
+        - title
+        - description
+        - event_date
+        - image
+      properties:
+        title:
+          type: string
+          example: "Buka Puasa Bersama"
+        description:
+          type: string
+          example: "Acara buka puasa bersama anak yatim"
+        event_date:
+          type: string
+          format: date
+          example: "2025-04-15"
+        image:
+          type: string
+          example: "buka-puasa.jpg"
+        is_published:
+          type: boolean
+          default: false
+
+    # Donation Schema
+    Donation:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        donation_package_id:
+          type: integer
+          nullable: true
+          example: 1
+        fundraiser_id:
+          type: integer
+          nullable: true
+          example: null
+        user_id:
+          type: integer
+          nullable: true
+          example: 2
+        title:
+          type: string
+          example: "Donasi untuk Beasiswa Santri"
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        phone:
+          type: string
+          example: "+628123456789"
+        category:
+          type: string
+          enum:
+            [
+              zakat,
+              infaq,
+              sadaqah,
+              wakaf,
+              pendidikan,
+              kesehatan,
+              sosial,
+              darurat,
+            ]
+          example: "pendidikan"
+        amount:
+          type: number
+          format: float
+          example: 500000
+        status:
+          type: string
+          enum: [pending, confirmed, cancelled]
+          example: "pending"
+        proof_image:
+          type: string
+          example: "proof-transfer.jpg"
+        confirmation_note:
+          type: string
+          nullable: true
+          example: null
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+        donation_package:
+          $ref: "#/components/schemas/DonationPackage"
+        fundraiser:
+          $ref: "#/components/schemas/Fundraiser"
+        user:
+          $ref: "#/components/schemas/User"
+
+    DonationInput:
+      type: object
+      required:
+        - category
+        - amount
+      properties:
+        donation_package_id:
+          type: integer
+          nullable: true
+          example: 1
+        fundraiser_id:
+          type: integer
+          nullable: true
+          example: null
+        title:
+          type: string
+          example: "Donasi untuk Beasiswa Santri"
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        phone:
+          type: string
+          example: "+628123456789"
+        category:
+          type: string
+          enum:
+            [
+              zakat,
+              infaq,
+              sadaqah,
+              wakaf,
+              pendidikan,
+              kesehatan,
+              sosial,
+              darurat,
+            ]
+          example: "pendidikan"
+        amount:
+          type: number
+          format: float
+          minimum: 0
+          example: 500000
+        proof_image:
+          type: string
+          example: "proof-transfer.jpg"
+
+    # Error Schemas
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Error message"
+        error:
+          type: string
+          example: "Detailed error description"
+
+    ValidationError:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "The given data was invalid."
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          example:
+            email: ["The email field is required."]
+            password: ["The password field is required."]
+
+    # Pagination Schema
+    PaginationMeta:
+      type: object
+      properties:
+        current_page:
+          type: integer
+          example: 1
+        data:
+          type: array
+          items: {}
+        first_page_url:
+          type: string
+          example: "http://localhost:8000/api/programs?page=1"
+        from:
+          type: integer
+          example: 1
+        last_page:
+          type: integer
+          example: 5
+        last_page_url:
+          type: string
+          example: "http://localhost:8000/api/programs?page=5"
+        links:
+          type: array
+          items:
+            type: object
+            properties:
+              url:
+                type: string
+                nullable: true
+              label:
+                type: string
+              active:
+                type: boolean
+        next_page_url:
+          type: string
+          nullable: true
+          example: "http://localhost:8000/api/programs?page=2"
+        path:
+          type: string
+          example: "http://localhost:8000/api/programs"
+        per_page:
+          type: integer
+          example: 15
+        prev_page_url:
+          type: string
+          nullable: true
+          example: null
+        to:
+          type: integer
+          example: 15
+        total:
+          type: integer
+          example: 67
+
+tags:
+  - name: Authentication
+    description: User authentication and session management
+  - name: Programs
+    description: Program management (Admin only CRUD)
+  - name: Donation Packages
+    description: Donation package management (Admin only CRUD)
+  - name: Fundraisers
+    description: Fundraiser management (Admin/Editor CRUD)
+  - name: Activities
+    description: Activity management (Admin/Editor CRUD)
+  - name: Donations
+    description: Donation management and processing
+  - name: User Management
+    description: User profile and account management
+  - name: Admin Management
+    description: Admin dashboard and user management
+  - name: Admin
+    description: Admin-only endpoints
+  - name: Admin/Editor
+    description: Admin and Editor accessible endpoints
+  - name: User
+    description: User-specific endpoints
