@@ -21,10 +21,10 @@ class DonationController extends Controller
 
         // Search functionality
         if ($request->search) {
-            $query->where(function($q) use ($request) {
+            $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', "%{$request->search}%")
-                  ->orWhere('email', 'like', "%{$request->search}%")
-                  ->orWhere('title', 'like', "%{$request->search}%");
+                    ->orWhere('email', 'like', "%{$request->search}%")
+                    ->orWhere('title', 'like', "%{$request->search}%");
             });
         }
 
@@ -253,18 +253,18 @@ class DonationController extends Controller
         }
 
         $donations = Donation::where('user_id', $request->user()->id)
-                            ->with(['donationPackage', 'fundraiser'])
-                            ->latest()
-                            ->paginate($request->per_page ?? 15);
+            ->with(['donationPackage', 'fundraiser'])
+            ->latest()
+            ->paginate($request->per_page ?? 15);
 
         $stats = [
             'total_donations' => Donation::where('user_id', $request->user()->id)->count(),
             'total_amount' => Donation::where('user_id', $request->user()->id)
-                                    ->where('status', 'confirmed')
-                                    ->sum('amount'),
+                ->where('status', 'confirmed')
+                ->sum('amount'),
             'pending_donations' => Donation::where('user_id', $request->user()->id)
-                                         ->where('status', 'pending')
-                                         ->count(),
+                ->where('status', 'pending')
+                ->count(),
         ];
 
         return response()->json([
@@ -286,12 +286,12 @@ class DonationController extends Controller
             'pending_donations' => Donation::where('status', 'pending')->count(),
             'total_amount' => Donation::where('status', 'confirmed')->sum('amount'),
             'monthly_amount' => Donation::where('status', 'confirmed')
-                                      ->whereMonth('confirmed_at', now()->month)
-                                      ->whereYear('confirmed_at', now()->year)
-                                      ->sum('amount'),
+                ->whereMonth('confirmed_at', now()->month)
+                ->whereYear('confirmed_at', now()->year)
+                ->sum('amount'),
             'daily_amount' => Donation::where('status', 'confirmed')
-                                    ->whereDate('confirmed_at', now()->toDateString())
-                                    ->sum('amount'),
+                ->whereDate('confirmed_at', now()->toDateString())
+                ->sum('amount'),
         ];
 
         return response()->json($stats);
@@ -302,9 +302,9 @@ class DonationController extends Controller
         $fundraiser = Fundraiser::find($fundraiserId);
         if ($fundraiser) {
             $totalConfirmed = Donation::where('fundraiser_id', $fundraiserId)
-                                    ->where('status', 'confirmed')
-                                    ->sum('amount');
-            
+                ->where('status', 'confirmed')
+                ->sum('amount');
+
             $fundraiser->update(['current_amount' => $totalConfirmed]);
         }
     }

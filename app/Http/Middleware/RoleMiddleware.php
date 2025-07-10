@@ -21,7 +21,7 @@ class RoleMiddleware
 
         // Split roles by comma to support multiple roles
         $allowedRoles = array_map('trim', explode(',', $roles));
-        
+
         if (!$request->user()->role || !in_array($request->user()->role->name, $allowedRoles)) {
             return response()->json([
                 'error' => 'Unauthorized. Required role(s): ' . implode(' or ', $allowedRoles)

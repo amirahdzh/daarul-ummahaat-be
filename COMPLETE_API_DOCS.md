@@ -1,44 +1,51 @@
 # 📚 Daarul Ummahaat API - Complete CRUD Documentation
 
 ## 🔗 Base URL
+
 ```
 http://localhost:8000/api
 ```
 
 ## 🎭 User Roles & Permissions
 
-### **Admin** 
-- Full access to all features
-- Can manage users, programs, donation packages
-- Can verify donations and manage fundraisers
-- Can view all statistics
+### **Admin**
+
+-   Full access to all features
+-   Can manage users, programs, donation packages
+-   Can verify donations and manage fundraisers
+-   Can view all statistics
 
 ### **Editor/Fundraiser Manager**
-- Can create and manage their own fundraisers
-- Can create and manage their own activities
-- Cannot access admin-only features
+
+-   Can create and manage their own fundraisers
+-   Can create and manage their own activities
+-   Cannot access admin-only features
 
 ### **User/Donor**
-- Can view public content
-- Can make donations
-- Can view their own donation history
-- Can update their profile
+
+-   Can view public content
+-   Can make donations
+-   Can view their own donation history
+-   Can update their profile
 
 ### **Public (No Login)**
-- Can view published content
-- Can make anonymous donations
+
+-   Can view published content
+-   Can make anonymous donations
 
 ---
 
 ## 📋 **Programs API**
 
 ### Public Access
+
 ```http
 GET /programs
 GET /programs/{id}
 ```
 
 ### Admin Only
+
 ```http
 POST /admin/programs
 PUT /admin/programs/{id}
@@ -46,6 +53,7 @@ DELETE /admin/programs/{id}
 ```
 
 **Create Program (Admin Only):**
+
 ```json
 POST /admin/programs
 {
@@ -62,12 +70,14 @@ POST /admin/programs
 ## 📦 **Donation Packages API**
 
 ### Public Access
+
 ```http
 GET /donation-packages
 GET /donation-packages/{id}
 ```
 
 ### Admin Only
+
 ```http
 POST /admin/donation-packages
 PUT /admin/donation-packages/{id}
@@ -76,6 +86,7 @@ POST /admin/donation-packages/{id}/toggle-status
 ```
 
 **Create Donation Package (Admin Only):**
+
 ```json
 POST /admin/donation-packages
 {
@@ -92,12 +103,14 @@ POST /admin/donation-packages
 ## 🎯 **Fundraisers API**
 
 ### Public Access
+
 ```http
 GET /fundraisers
 GET /fundraisers/{id}
 ```
 
 ### Admin & Editor
+
 ```http
 POST /fundraisers
 PUT /fundraisers/{id}
@@ -105,11 +118,13 @@ DELETE /fundraisers/{id}
 ```
 
 ### Admin Only
+
 ```http
 POST /admin/fundraisers/{id}/update-progress
 ```
 
 **Create Fundraiser (Admin/Editor):**
+
 ```json
 POST /fundraisers
 {
@@ -124,6 +139,7 @@ POST /fundraisers
 ```
 
 **Update Progress (Admin Only):**
+
 ```json
 POST /admin/fundraisers/{id}/update-progress
 {
@@ -137,6 +153,7 @@ POST /admin/fundraisers/{id}/update-progress
 ## 🎪 **Activities API**
 
 ### Public Access
+
 ```http
 GET /activities
 GET /activities/{id}
@@ -145,6 +162,7 @@ GET /activities/past
 ```
 
 ### Admin & Editor
+
 ```http
 POST /activities
 PUT /activities/{id}
@@ -152,6 +170,7 @@ DELETE /activities/{id}
 ```
 
 **Create Activity (Admin/Editor):**
+
 ```json
 POST /activities
 {
@@ -168,11 +187,13 @@ POST /activities
 ## 💰 **Donations API**
 
 ### Public Access
+
 ```http
 POST /donations
 ```
 
 ### Authenticated Users
+
 ```http
 GET /donations
 GET /donations/{id}
@@ -180,6 +201,7 @@ GET /user/donations
 ```
 
 ### Admin Only
+
 ```http
 POST /admin/donations/manual
 POST /admin/donations/{id}/confirm
@@ -188,6 +210,7 @@ GET /admin/donations/statistics
 ```
 
 **Create Donation (Public):**
+
 ```json
 POST /donations
 {
@@ -204,6 +227,7 @@ POST /donations
 ```
 
 **Create Manual Donation (Admin Only):**
+
 ```json
 POST /admin/donations/manual
 {
@@ -218,6 +242,7 @@ POST /admin/donations/manual
 ```
 
 **Confirm Donation (Admin Only):**
+
 ```json
 POST /admin/donations/{id}/confirm
 {
@@ -230,6 +255,7 @@ POST /admin/donations/{id}/confirm
 ## 👨‍💼 **Admin Management API**
 
 ### Dashboard & Users
+
 ```http
 GET /admin/dashboard
 GET /admin/users
@@ -237,11 +263,13 @@ POST /admin/users/{id}/toggle-status
 ```
 
 ### Statistics
+
 ```http
 GET /admin/donations/statistics
 ```
 
 **Response Example - Dashboard:**
+
 ```json
 {
     "stats": {
@@ -262,34 +290,41 @@ GET /admin/donations/statistics
 ## 🔍 **Search & Filter Parameters**
 
 ### Common Filters
-- `search` - Search in title, description, name, email
-- `per_page` - Items per page (default: 15)
-- `page` - Page number
+
+-   `search` - Search in title, description, name, email
+-   `per_page` - Items per page (default: 15)
+-   `page` - Page number
 
 ### Specific Filters
 
 **Donations:**
-- `status` - pending, confirmed, cancelled
-- `category` - infaq, zakat, sosial, etc.
-- `date_from` & `date_to` - Date range filter
+
+-   `status` - pending, confirmed, cancelled
+-   `category` - infaq, zakat, sosial, etc.
+-   `date_from` & `date_to` - Date range filter
 
 **Fundraisers:**
-- `status` - active, closed, archived
+
+-   `status` - active, closed, archived
 
 **Activities:**
-- `date_from` & `date_to` - Event date range
+
+-   `date_from` & `date_to` - Event date range
 
 **Donation Packages:**
-- `category` - Package category
+
+-   `category` - Package category
 
 **Users (Admin only):**
-- `role` - Filter by role name
+
+-   `role` - Filter by role name
 
 ---
 
 ## 🔐 **Authentication Headers**
 
 For protected routes, include:
+
 ```http
 Authorization: Bearer {your_token_here}
 Content-Type: application/json
@@ -300,32 +335,35 @@ Accept: application/json
 
 ## 📊 **Response Status Codes**
 
-- `200` - Success
-- `201` - Created
-- `400` - Bad Request (validation errors)
-- `401` - Unauthenticated
-- `403` - Forbidden (insufficient permissions)
-- `404` - Not Found
-- `422` - Validation Error
-- `500` - Server Error
+-   `200` - Success
+-   `201` - Created
+-   `400` - Bad Request (validation errors)
+-   `401` - Unauthenticated
+-   `403` - Forbidden (insufficient permissions)
+-   `404` - Not Found
+-   `422` - Validation Error
+-   `500` - Server Error
 
 ---
 
 ## 🎯 **Scenario-Based Usage**
 
 ### **Scenario 1: Public Visitor Donations**
+
 1. `GET /programs` - View available programs
 2. `GET /fundraisers` - View active fundraisers
 3. `GET /donation-packages` - View donation packages
 4. `POST /donations` - Make anonymous donation
 
 ### **Scenario 2: Registered User Donations**
+
 1. `POST /login` - Login to account
 2. `GET /user/donations` - View donation history
 3. `POST /donations` - Make linked donation
 4. `GET /user/profile` - View/update profile
 
 ### **Scenario 3: Admin Management**
+
 1. `POST /login` - Login as admin
 2. `GET /admin/dashboard` - View dashboard
 3. `GET /admin/donations` - View all donations
@@ -333,12 +371,14 @@ Accept: application/json
 5. `POST /admin/donations/manual` - Add offline donations
 
 ### **Scenario 4: Editor/Fundraiser Manager**
+
 1. `POST /login` - Login as editor
 2. `POST /fundraisers` - Create fundraiser
 3. `POST /activities` - Create activity
 4. `PUT /fundraisers/{id}` - Update own fundraiser
 
 ### **Scenario 5: Manual Donation Entry**
+
 1. Admin receives offline donation
 2. `POST /admin/donations/manual` - Enter into system
 3. `POST /admin/fundraisers/{id}/update-progress` - Update campaign progress
@@ -348,12 +388,14 @@ Accept: application/json
 ## 🧪 **Testing with Postman**
 
 Import the provided `Postman_Collection.json` which includes:
-- All authentication flows
-- All CRUD operations
-- Role-based access testing
-- Error scenario testing
+
+-   All authentication flows
+-   All CRUD operations
+-   Role-based access testing
+-   Error scenario testing
 
 ### **Quick Test Sequence:**
+
 1. Login as admin → Get token
 2. Create program → Test admin access
 3. Login as user → Get user token
@@ -366,10 +408,10 @@ Import the provided `Postman_Collection.json` which includes:
 ## 🎉 **Features Implemented**
 
 ✅ **Complete CRUD** for all entities
-✅ **Role-based authorization** 
+✅ **Role-based authorization**
 ✅ **Public access** for content viewing
-✅ **Anonymous donations** 
-✅ **Manual donation entry** 
+✅ **Anonymous donations**
+✅ **Manual donation entry**
 ✅ **Donation verification** workflow
 ✅ **Fundraiser progress** tracking
 ✅ **Search and filtering**

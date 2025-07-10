@@ -20,17 +20,17 @@ class FundraiserController extends Controller
 
         // For editors, only show their own fundraisers unless published
         if ($request->user() && $request->user()->hasRole('editor')) {
-            $query->where(function($q) use ($request) {
+            $query->where(function ($q) use ($request) {
                 $q->where('is_published', true)
-                  ->orWhere('created_by', $request->user()->id);
+                    ->orWhere('created_by', $request->user()->id);
             });
         }
 
         // Search functionality
         if ($request->search) {
-            $query->where(function($q) use ($request) {
+            $query->where(function ($q) use ($request) {
                 $q->where('title', 'like', "%{$request->search}%")
-                  ->orWhere('description', 'like', "%{$request->search}%");
+                    ->orWhere('description', 'like', "%{$request->search}%");
             });
         }
 
@@ -46,7 +46,7 @@ class FundraiserController extends Controller
 
     public function show(Request $request, $id)
     {
-        $fundraiser = Fundraiser::with(['creator', 'donations' => function($query) {
+        $fundraiser = Fundraiser::with(['creator', 'donations' => function ($query) {
             $query->where('status', 'confirmed');
         }])->findOrFail($id);
 
@@ -112,8 +112,10 @@ class FundraiserController extends Controller
     public function update(Request $request, Fundraiser $fundraiser)
     {
         // Admin can update any, editor can only update their own
-        if (!$request->user()->isAdmin() && 
-            (!$request->user()->hasRole('editor') || $fundraiser->created_by !== $request->user()->id)) {
+        if (
+            !$request->user()->isAdmin() &&
+            (!$request->user()->hasRole('editor') || $fundraiser->created_by !== $request->user()->id)
+        ) {
             return response()->json(['error' => 'Unauthorized to update this fundraiser'], 403);
         }
 
@@ -155,8 +157,10 @@ class FundraiserController extends Controller
     public function destroy(Request $request, Fundraiser $fundraiser)
     {
         // Admin can delete any, editor can only delete their own
-        if (!$request->user()->isAdmin() && 
-            (!$request->user()->hasRole('editor') || $fundraiser->created_by !== $request->user()->id)) {
+        if (
+            !$request->user()->isAdmin() &&
+            (!$request->user()->hasRole('editor') || $fundraiser->created_by !== $request->user()->id)
+        ) {
             return response()->json(['error' => 'Unauthorized to delete this fundraiser'], 403);
         }
 

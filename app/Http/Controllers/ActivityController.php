@@ -19,17 +19,17 @@ class ActivityController extends Controller
 
         // For editors, only show their own activities unless published
         if ($request->user() && $request->user()->hasRole('editor')) {
-            $query->where(function($q) use ($request) {
+            $query->where(function ($q) use ($request) {
                 $q->where('is_published', true)
-                  ->orWhere('created_by', $request->user()->id);
+                    ->orWhere('created_by', $request->user()->id);
             });
         }
 
         // Search functionality
         if ($request->search) {
-            $query->where(function($q) use ($request) {
+            $query->where(function ($q) use ($request) {
                 $q->where('title', 'like', "%{$request->search}%")
-                  ->orWhere('description', 'like', "%{$request->search}%");
+                    ->orWhere('description', 'like', "%{$request->search}%");
             });
         }
 
@@ -106,8 +106,10 @@ class ActivityController extends Controller
     public function update(Request $request, Activity $activity)
     {
         // Admin can update any, editor can only update their own
-        if (!$request->user()->isAdmin() && 
-            (!$request->user()->hasRole('editor') || $activity->created_by !== $request->user()->id)) {
+        if (
+            !$request->user()->isAdmin() &&
+            (!$request->user()->hasRole('editor') || $activity->created_by !== $request->user()->id)
+        ) {
             return response()->json(['error' => 'Unauthorized to update this activity'], 403);
         }
 
@@ -142,8 +144,10 @@ class ActivityController extends Controller
     public function destroy(Request $request, Activity $activity)
     {
         // Admin can delete any, editor can only delete their own
-        if (!$request->user()->isAdmin() && 
-            (!$request->user()->hasRole('editor') || $activity->created_by !== $request->user()->id)) {
+        if (
+            !$request->user()->isAdmin() &&
+            (!$request->user()->hasRole('editor') || $activity->created_by !== $request->user()->id)
+        ) {
             return response()->json(['error' => 'Unauthorized to delete this activity'], 403);
         }
 
@@ -165,12 +169,12 @@ class ActivityController extends Controller
     public function upcoming(Request $request)
     {
         $query = Activity::where('event_date', '>=', now())
-                        ->where('is_published', true)
-                        ->with('creator');
+            ->where('is_published', true)
+            ->with('creator');
 
         $activities = $query->orderBy('event_date', 'asc')
-                           ->take($request->limit ?? 5)
-                           ->get();
+            ->take($request->limit ?? 5)
+            ->get();
 
         return response()->json($activities);
     }
@@ -178,11 +182,11 @@ class ActivityController extends Controller
     public function past(Request $request)
     {
         $query = Activity::where('event_date', '<', now())
-                        ->where('is_published', true)
-                        ->with('creator');
+            ->where('is_published', true)
+            ->with('creator');
 
         $activities = $query->orderBy('event_date', 'desc')
-                           ->paginate($request->per_page ?? 15);
+            ->paginate($request->per_page ?? 15);
 
         return response()->json($activities);
     }
