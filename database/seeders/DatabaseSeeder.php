@@ -37,6 +37,13 @@ class DatabaseSeeder extends Seeder
             'role_id' => $userRole->id,
         ]);
 
-        // User::factory(10)->create();
+        // Create editor user
+        User::create([
+            'name' => 'Editor User',
+            'email' => 'editor@example.com',
+            'password' => Hash::make('password'),
+            'phone' => '+1234567892',
+            'role_id' => $editorRole->id,
+        ]);
     }
 }
