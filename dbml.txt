@@ -1,0 +1,104 @@
+Table programs {
+  id int [pk, increment]
+  title varchar
+  description text
+  slug varchar [unique]
+  image varchar
+  external_link varchar
+  is_published boolean [default: false, note: 'Kontrol apakah konten ini ditampilkan publik']
+  created_by int [ref: > users.id]
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp [note: 'Soft delete, nullable']
+}
+
+Table donation_packages {
+  id int [pk, increment]
+  title varchar [not null, note: 'Nama paket, misal: "Infaq Rutin", "Beasiswa Santri"']
+  description text
+  amount bigint [note: 'Nominal donasi yang disarankan, bisa 0 jika fleksibel']
+  category varchar [note: 'Kategori umum, misal: infaq, zakat, sosial']
+  is_active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table fundraisers {
+  id int [pk, increment]
+  title varchar
+  slug varchar [unique, note: 'Untuk URL campaign']
+  description text
+  target_amount bigint
+  current_amount bigint [default: 0]
+  deadline date
+  image varchar
+  status varchar [default: 'active', note: 'active | closed | archived']
+  created_by int [ref: > users.id]
+  is_published boolean [default: false]
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table activities {
+  id int [pk, increment]
+  title varchar
+  description text
+  event_date date
+  image varchar
+  created_by int [ref: > users.id]
+  is_published boolean [default: false]
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table donations {
+  id int [pk, increment]
+  user_id int [ref: > users.id, note: 'User yang login (opsional)']
+  donation_package_id int [ref: > donation_packages.id, note: 'Opsional']
+  fundraiser_id int [ref: > fundraisers.id, note: 'Opsional']
+  title varchar [note: 'Judul donasi jika tidak terkait campaign atau paket']
+  name varchar
+  email varchar [note: 'Email pendonor (opsional, jika tidak login)']
+  phone varchar
+  category varchar
+  amount bigint
+  status varchar [note: 'pending | confirmed | cancelled']
+  proof_image varchar [note: 'Opsional, untuk bukti transfer']
+  confirmation_note text
+  confirmed_at timestamp
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table roles {
+  id int [pk, increment]
+  name varchar [unique, note: 'e.g., admin, donor, editor']
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table users {
+  id int [pk, increment]
+  name varchar
+  email varchar [unique]
+  password varchar
+  role_id int [ref: > roles.id]
+  phone varchar
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table admin_logs {
+  id int [pk, increment]
+  user_id int [ref: > users.id]
+  action varchar [note: 'create, update, delete, confirm_donation, etc']
+  target_table varchar
+  target_id int
+  note text
+  created_at timestamp
+}
