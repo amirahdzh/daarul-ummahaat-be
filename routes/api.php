@@ -64,11 +64,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/users/{user}/toggle-status', [AdminController::class, 'toggleUserStatus']);
 
         // Admin-only CRUD for Programs
+        Route::get('/programs', [ProgramController::class, 'index']); // Admin can see all programs
         Route::post('/programs', [ProgramController::class, 'store']);
         Route::put('/programs/{program}', [ProgramController::class, 'update']);
         Route::delete('/programs/{program}', [ProgramController::class, 'destroy']);
 
         // Admin-only CRUD for Donation Packages
+        Route::get('/donation-packages', [DonationPackageController::class, 'index']); // Admin can see all packages
         Route::post('/donation-packages', [DonationPackageController::class, 'store']);
         Route::put('/donation-packages/{donationPackage}', [DonationPackageController::class, 'update']);
         Route::delete('/donation-packages/{donationPackage}', [DonationPackageController::class, 'destroy']);
@@ -82,9 +84,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Admin fundraiser progress update
         Route::post('/fundraisers/{fundraiser}/update-progress', [FundraiserController::class, 'updateProgress']);
+
+        // Admin can view all fundraisers and activities
+        Route::get('/fundraisers', [FundraiserController::class, 'index']); // Admin can see all fundraisers
+        Route::get('/activities', [ActivityController::class, 'index']); // Admin can see all activities
     });
 
-    // Admin & Editor routes for Fundraisers
+    // Admin & Editor routes for Fundraisers and Activities (content management)
     Route::middleware(['role:admin,editor'])->group(function () {
         Route::post('/fundraisers', [FundraiserController::class, 'store']);
         Route::put('/fundraisers/{fundraiser}', [FundraiserController::class, 'update']);

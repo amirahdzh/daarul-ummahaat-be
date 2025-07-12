@@ -18,7 +18,7 @@ info:
     ## Base URL
     http://localhost:8000/api
 
-  version: "2.0.0"
+  version: "2.1.0"
   contact:
     name: Daarul Ummahaat Development Team
     email: admin@daarul.com
@@ -243,6 +243,55 @@ paths:
                 $ref: "#/components/schemas/Error"
 
   /admin/programs:
+    get:
+      tags:
+        - Programs
+        - Admin
+      summary: Get all programs (Admin only)
+      description: Get all programs including unpublished ones for admin management
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          description: Search term for program title or description
+          required: false
+          schema:
+            type: string
+        - name: per_page
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+            default: 1
+      responses:
+        "200":
+          description: Programs retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Program"
+                  meta:
+                    $ref: "#/components/schemas/PaginationMeta"
+        "403":
+          description: Forbidden - Admin access required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     post:
       tags:
         - Programs
@@ -420,6 +469,72 @@ paths:
           description: Donation package not found
 
   /admin/donation-packages:
+    get:
+      tags:
+        - Donation Packages
+        - Admin
+      summary: Get all donation packages (Admin only)
+      description: Get all donation packages including inactive ones for admin management
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          description: Search term for package title or description
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Filter by category
+          required: false
+          schema:
+            type: string
+            enum:
+              [
+                infaq,
+                sedekah,
+                zakat,
+                wakaf,
+                pendidikan,
+                kesehatan,
+                sosial,
+                darurat,
+              ]
+        - name: per_page
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+            default: 1
+      responses:
+        "200":
+          description: Donation packages retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DonationPackage"
+                  meta:
+                    $ref: "#/components/schemas/PaginationMeta"
+        "403":
+          description: Forbidden - Admin access required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     post:
       tags:
         - Donation Packages
@@ -671,6 +786,64 @@ paths:
         "404":
           description: Fundraiser not found
 
+  /admin/fundraisers:
+    get:
+      tags:
+        - Fundraisers
+        - Admin
+      summary: Get all fundraisers (Admin only)
+      description: Get all fundraisers including unpublished ones for admin management
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          description: Search term for fundraiser title or description
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filter by status
+          required: false
+          schema:
+            type: string
+            enum: [active, completed, cancelled]
+        - name: per_page
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+            default: 1
+      responses:
+        "200":
+          description: Fundraisers retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Fundraiser"
+                  meta:
+                    $ref: "#/components/schemas/PaginationMeta"
+        "403":
+          description: Forbidden - Admin access required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /admin/fundraisers/{fundraiser}/update-progress:
     post:
       tags:
@@ -920,6 +1093,71 @@ paths:
           description: Forbidden - Admin or Editor access required
         "404":
           description: Activity not found
+
+  /admin/activities:
+    get:
+      tags:
+        - Activities
+        - Admin
+      summary: Get all activities (Admin only)
+      description: Get all activities including unpublished ones for admin management
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          description: Search term for activity title or description
+          required: false
+          schema:
+            type: string
+        - name: date_from
+          in: query
+          description: Filter activities from this date
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          description: Filter activities to this date
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: per_page
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+            default: 1
+      responses:
+        "200":
+          description: Activities retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Activity"
+                  meta:
+                    $ref: "#/components/schemas/PaginationMeta"
+        "403":
+          description: Forbidden - Admin access required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   # Donations Endpoints
   /donations:

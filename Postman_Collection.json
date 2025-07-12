@@ -1,9 +1,9 @@
 {
   "info": {
     "name": "Daarul Ummahaat API - Complete Collection",
-    "description": "Complete API collection for Daarul Ummahaat donation management system with all CRUD operations and scenarios",
+    "description": "Complete API collection for Daarul Ummahaat donation management system with all CRUD operations and scenarios. Updated with admin listing endpoints and documentation routes.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "version": "2.0.0"
+    "version": "2.1.0"
   },
   "variable": [
     {
@@ -368,6 +368,41 @@
           }
         },
         {
+          "name": "Get All Programs (Admin Only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/programs?search=&per_page=10&page=1",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "programs"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "per_page",
+                  "value": "10"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
           "name": "Delete Program (Admin Only)",
           "request": {
             "method": "DELETE",
@@ -530,6 +565,45 @@
               "raw": "{{base_url}}/admin/donation-packages/{{package_id}}/toggle-status",
               "host": ["{{base_url}}"],
               "path": ["admin", "donation-packages", "{{package_id}}", "toggle-status"]
+            }
+          }
+        },
+        {
+          "name": "Get All Donation Packages (Admin Only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/donation-packages?search=&category=&per_page=10&page=1",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "donation-packages"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "category",
+                  "value": ""
+                },
+                {
+                  "key": "per_page",
+                  "value": "10"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
+              ]
             }
           }
         },
@@ -733,6 +807,45 @@
               "raw": "{{base_url}}/admin/fundraisers/{{fundraiser_id}}/update-progress",
               "host": ["{{base_url}}"],
               "path": ["admin", "fundraisers", "{{fundraiser_id}}", "update-progress"]
+            }
+          }
+        },
+        {
+          "name": "Get All Fundraisers (Admin Only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/fundraisers?search=&status=&per_page=10&page=1",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "fundraisers"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "status",
+                  "value": ""
+                },
+                {
+                  "key": "per_page",
+                  "value": "10"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
+              ]
             }
           }
         },
@@ -957,6 +1070,49 @@
               "raw": "{{base_url}}/activities/{{activity_id}}",
               "host": ["{{base_url}}"],
               "path": ["activities", "{{activity_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get All Activities (Admin Only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/activities?search=&date_from=&date_to=&per_page=10&page=1",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "activities"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "date_from",
+                  "value": ""
+                },
+                {
+                  "key": "date_to",
+                  "value": ""
+                },
+                {
+                  "key": "per_page",
+                  "value": "10"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
+              ]
             }
           }
         },
@@ -1278,6 +1434,62 @@
               "raw": "{{base_url}}/admin/donations/statistics",
               "host": ["{{base_url}}"],
               "path": ["admin", "donations", "statistics"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "API Documentation",
+      "item": [
+        {
+          "name": "Swagger UI",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/html"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/docs",
+              "host": ["{{base_url}}"],
+              "path": ["docs"]
+            }
+          }
+        },
+        {
+          "name": "Swagger JSON",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/swagger.json",
+              "host": ["{{base_url}}"],
+              "path": ["swagger.json"]
+            }
+          }
+        },
+        {
+          "name": "Swagger YAML",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/yaml"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/swagger.yaml",
+              "host": ["{{base_url}}"],
+              "path": ["swagger.yaml"]
             }
           }
         }

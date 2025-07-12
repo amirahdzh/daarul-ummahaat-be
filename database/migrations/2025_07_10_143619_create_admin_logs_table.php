@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->string('action')->comment('create, update, delete, confirm_donation, etc');
             $table->string('target_table');
-            $table->integer('target_id');
+            $table->integer('target_id')->nullable();
             $table->text('note')->nullable();
             $table->timestamp('created_at');
         });
