@@ -315,8 +315,14 @@
               }
             ],
             "body": {
-              "mode": "raw",
-              "raw": "{\n    \"title\": \"Beasiswa Santri\",\n    \"description\": \"Program beasiswa untuk santri berprestasi dengan nilai akademik tinggi\",\n    \"image\": \"beasiswa-santri.jpg\",\n    \"external_link\": \"https://example.com/beasiswa\",\n    \"is_published\": true\n}"
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "Beasiswa Santri", "type": "text" },
+                { "key": "description", "value": "Program beasiswa untuk santri berprestasi dengan nilai akademik tinggi", "type": "text" },
+                { "key": "image", "type": "file" },
+                { "key": "external_link", "value": "https://example.com/beasiswa", "type": "text" },
+                { "key": "is_published", "value": "true", "type": "text" }
+              ]
             },
             "url": {
               "raw": "{{base_url}}/admin/programs",
@@ -357,8 +363,14 @@
               }
             ],
             "body": {
-              "mode": "raw",
-              "raw": "{\n    \"title\": \"Beasiswa Santri Updated\",\n    \"description\": \"Program beasiswa untuk santri berprestasi - Updated\",\n    \"image\": \"beasiswa-santri-updated.jpg\",\n    \"external_link\": \"https://example.com/beasiswa-updated\",\n    \"is_published\": true\n}"
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "Beasiswa Santri Updated", "type": "text" },
+                { "key": "description", "value": "Program beasiswa untuk santri berprestasi - Updated", "type": "text" },
+                { "key": "image", "type": "file" },
+                { "key": "external_link", "value": "https://example.com/beasiswa-updated", "type": "text" },
+                { "key": "is_published", "value": "true", "type": "text" }
+              ]
             },
             "url": {
               "raw": "{{base_url}}/admin/programs/{{program_id}}",
@@ -700,8 +712,16 @@
               }
             ],
             "body": {
-              "mode": "raw",
-              "raw": "{\n    \"title\": \"Renovasi Masjid\",\n    \"description\": \"Dana untuk renovasi masjid yayasan yang sudah berusia 20 tahun\",\n    \"target_amount\": 50000000,\n    \"deadline\": \"2025-12-31\",\n    \"image\": \"renovasi-masjid.jpg\",\n    \"status\": \"active\",\n    \"is_published\": true\n}"
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "Renovasi Masjid", "type": "text" },
+                { "key": "description", "value": "Dana untuk renovasi masjid yayasan yang sudah berusia 20 tahun", "type": "text" },
+                { "key": "target_amount", "value": "50000000", "type": "text" },
+                { "key": "deadline", "value": "2025-12-31", "type": "text" },
+                { "key": "image", "type": "file" },
+                { "key": "status", "value": "active", "type": "text" },
+                { "key": "is_published", "value": "true", "type": "text" }
+              ]
             },
             "url": {
               "raw": "{{base_url}}/fundraisers",
@@ -771,8 +791,17 @@
               }
             ],
             "body": {
-              "mode": "raw",
-              "raw": "{\n    \"title\": \"Renovasi Masjid Updated\",\n    \"description\": \"Dana untuk renovasi masjid yayasan yang sudah berusia 20 tahun - Updated\",\n    \"target_amount\": 75000000,\n    \"current_amount\": 15000000,\n    \"deadline\": \"2025-12-31\",\n    \"image\": \"renovasi-masjid-updated.jpg\",\n    \"status\": \"active\",\n    \"is_published\": true\n}"
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "Renovasi Masjid Updated", "type": "text" },
+                { "key": "description", "value": "Dana untuk renovasi masjid yayasan yang sudah berusia 20 tahun - Updated", "type": "text" },
+                { "key": "target_amount", "value": "75000000", "type": "text" },
+                { "key": "current_amount", "value": "15000000", "type": "text" },
+                { "key": "deadline", "value": "2025-12-31", "type": "text" },
+                { "key": "image", "type": "file" },
+                { "key": "status", "value": "active", "type": "text" },
+                { "key": "is_published", "value": "true", "type": "text" }
+              ]
             },
             "url": {
               "raw": "{{base_url}}/fundraisers/{{fundraiser_id}}",
@@ -992,8 +1021,14 @@
               }
             ],
             "body": {
-              "mode": "raw",
-              "raw": "{\n    \"title\": \"Buka Puasa Bersama\",\n    \"description\": \"Acara buka puasa bersama anak yatim dan dhuafa\",\n    \"event_date\": \"2025-04-15\",\n    \"image\": \"buka-puasa.jpg\",\n    \"is_published\": true\n}"
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "Buka Puasa Bersama", "type": "text" },
+                { "key": "description", "value": "Acara buka puasa bersama anak yatim dan dhuafa", "type": "text" },
+                { "key": "event_date", "value": "2025-04-15", "type": "text" },
+                { "key": "image", "type": "file" },
+                { "key": "is_published", "value": "true", "type": "text" }
+              ]
             },
             "url": {
               "raw": "{{base_url}}/activities",
@@ -1063,8 +1098,14 @@
               }
             ],
             "body": {
-              "mode": "raw",
-              "raw": "{\n    \"title\": \"Buka Puasa Bersama Updated\",\n    \"description\": \"Acara buka puasa bersama anak yatim dan dhuafa - Updated\",\n    \"event_date\": \"2025-04-16\",\n    \"image\": \"buka-puasa-updated.jpg\",\n    \"is_published\": true\n}"
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "Buka Puasa Bersama Updated", "type": "text" },
+                { "key": "description", "value": "Acara buka puasa bersama anak yatim dan dhuafa - Updated", "type": "text" },
+                { "key": "event_date", "value": "2025-04-16", "type": "text" },
+                { "key": "image", "type": "file" },
+                { "key": "is_published", "value": "true", "type": "text" }
+              ]
             },
             "url": {
               "raw": "{{base_url}}/activities/{{activity_id}}",
@@ -1157,8 +1198,18 @@
               }
             ],
             "body": {
-              "mode": "raw",
-              "raw": "{\n    \"donation_package_id\": 1,\n    \"fundraiser_id\": null,\n    \"title\": \"Donasi untuk Beasiswa Santri\",\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"phone\": \"+628123456789\",\n    \"category\": \"pendidikan\",\n    \"amount\": 500000,\n    \"proof_image\": \"proof-transfer.jpg\"\n}"
+              "mode": "formdata",
+              "formdata": [
+                { "key": "donation_package_id", "value": "1", "type": "text" },
+                { "key": "fundraiser_id", "value": "", "type": "text" },
+                { "key": "title", "value": "Donasi untuk Beasiswa Santri", "type": "text" },
+                { "key": "name", "value": "John Doe", "type": "text" },
+                { "key": "email", "value": "john@example.com", "type": "text" },
+                { "key": "phone", "value": "+628123456789", "type": "text" },
+                { "key": "category", "value": "pendidikan", "type": "text" },
+                { "key": "amount", "value": "500000", "type": "text" },
+                { "key": "proof_image", "type": "file" }
+              ]
             },
             "url": {
               "raw": "{{base_url}}/donations",

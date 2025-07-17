@@ -1,3 +1,4 @@
+use Illuminate\Support\Facades\Storage;
 <?php
 
 namespace App\Http\Controllers;
@@ -7,6 +8,7 @@ use App\Models\DonationPackage;
 use App\Models\Fundraiser;
 use App\Models\AdminLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class DonationController extends Controller
 {
@@ -65,6 +67,7 @@ class DonationController extends Controller
 
     public function store(Request $request)
     {
+
         $request->validate([
             'donation_package_id' => 'nullable|exists:donation_packages,id',
             'fundraiser_id' => 'nullable|exists:fundraisers,id',
@@ -74,7 +77,7 @@ class DonationController extends Controller
             'phone' => 'required|string|max:20',
             'category' => 'required|string|max:255',
             'amount' => 'required|integer|min:1000', // Minimum 1000
-            'proof_image' => 'nullable|string',
+            'proof_image' => 'nullable|file|image|max:2048',
         ]);
 
         // Determine title if not provided
@@ -89,6 +92,11 @@ class DonationController extends Controller
             }
         }
 
+        $proofImagePath = null;
+        if ($request->hasFile('proof_image')) {
+            $proofImagePath = $request->file('proof_image')->store('donation_proofs', 'public');
+        }
+
         $donation = Donation::create([
             'user_id' => $request->user() ? $request->user()->id : null,
             'donation_package_id' => $request->donation_package_id,
@@ -100,7 +108,7 @@ class DonationController extends Controller
             'category' => $request->category,
             'amount' => $request->amount,
             'status' => 'pending',
-            'proof_image' => $request->proof_image,
+            'proof_image' => $proofImagePath,
         ]);
 
         return response()->json([

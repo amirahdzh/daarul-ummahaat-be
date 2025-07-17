@@ -6,6 +6,7 @@ use App\Models\Fundraiser;
 use App\Models\AdminLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class FundraiserController extends Controller
 {
@@ -74,15 +75,19 @@ class FundraiserController extends Controller
             return response()->json(['error' => 'Only admin or editor can create fundraisers'], 403);
         }
 
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'target_amount' => 'required|integer|min:1',
             'deadline' => 'required|date|after:today',
-            'image' => 'required|string',
+            'image' => 'required|file|image|max:2048',
             'status' => 'in:active,closed,archived',
             'is_published' => 'boolean',
         ]);
+
+        // Store image
+        $imagePath = $request->file('image')->store('fundraisers', 'public');
 
         $fundraiser = Fundraiser::create([
             'title' => $request->title,
@@ -91,7 +96,7 @@ class FundraiserController extends Controller
             'target_amount' => $request->target_amount,
             'current_amount' => 0,
             'deadline' => $request->deadline,
-            'image' => $request->image,
+            'image' => $imagePath,
             'status' => $request->status ?? 'active',
             'created_by' => $request->user()->id,
             'is_published' => $request->is_published ?? false,
@@ -119,28 +124,38 @@ class FundraiserController extends Controller
             return response()->json(['error' => 'Unauthorized to update this fundraiser'], 403);
         }
 
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'target_amount' => 'required|integer|min:1',
             'current_amount' => 'integer|min:0',
             'deadline' => 'required|date',
-            'image' => 'required|string',
+            'image' => 'nullable|file|image|max:2048',
             'status' => 'in:active,closed,archived',
             'is_published' => 'boolean',
         ]);
 
-        $fundraiser->update([
+        $updateData = [
             'title' => $request->title,
             'slug' => Str::slug($request->title . '-' . $fundraiser->id),
             'description' => $request->description,
             'target_amount' => $request->target_amount,
             'current_amount' => $request->current_amount ?? $fundraiser->current_amount,
             'deadline' => $request->deadline,
-            'image' => $request->image,
             'status' => $request->status ?? $fundraiser->status,
             'is_published' => $request->is_published ?? $fundraiser->is_published,
-        ]);
+        ];
+
+        // Handle image update
+        if ($request->hasFile('image')) {
+            if ($fundraiser->image && Storage::disk('public')->exists($fundraiser->image)) {
+                Storage::disk('public')->delete($fundraiser->image);
+            }
+            $updateData['image'] = $request->file('image')->store('fundraisers', 'public');
+        }
+
+        $fundraiser->update($updateData);
 
         // Log admin action
         $this->logAdminAction(
@@ -162,6 +177,12 @@ class FundraiserController extends Controller
             (!$request->user()->hasRole('editor') || $fundraiser->created_by !== $request->user()->id)
         ) {
             return response()->json(['error' => 'Unauthorized to delete this fundraiser'], 403);
+        }
+
+
+        // Delete image from storage
+        if ($fundraiser->image && Storage::disk('public')->exists($fundraiser->image)) {
+            Storage::disk('public')->delete($fundraiser->image);
         }
 
         $fundraiserTitle = $fundraiser->title;

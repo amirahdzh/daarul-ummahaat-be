@@ -6,6 +6,7 @@ use App\Models\Program;
 use App\Models\AdminLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class ProgramController extends Controller
 {
@@ -55,16 +56,19 @@ class ProgramController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'image' => 'required|string',
+            'image' => 'required|file|image|max:2048',
             'external_link' => 'nullable|url',
             'is_published' => 'boolean',
         ]);
+
+        // Store image
+        $imagePath = $request->file('image')->store('programs', 'public');
 
         $program = Program::create([
             'title' => $request->title,
             'description' => $request->description,
             'slug' => Str::slug($request->title),
-            'image' => $request->image,
+            'image' => $imagePath,
             'external_link' => $request->external_link,
             'is_published' => $request->is_published ?? false,
             'created_by' => $request->user()->id,
@@ -79,6 +83,7 @@ class ProgramController extends Controller
             "Created program: {$program->title}"
         );
 
+        $program->image_url = asset('storage/' . $program->image);
         return response()->json($program->load('creator'), 201);
     }
 
@@ -92,21 +97,29 @@ class ProgramController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'image' => 'required|string',
+            'image' => 'nullable|file|image|max:2048',
             'external_link' => 'nullable|url',
             'is_published' => 'boolean',
         ]);
 
-        $oldData = $program->toArray();
-
-        $program->update([
+        $updateData = [
             'title' => $request->title,
             'description' => $request->description,
             'slug' => Str::slug($request->title),
-            'image' => $request->image,
             'external_link' => $request->external_link,
             'is_published' => $request->is_published ?? $program->is_published,
-        ]);
+        ];
+
+        // Handle image update
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($program->image && Storage::disk('public')->exists($program->image)) {
+                Storage::disk('public')->delete($program->image);
+            }
+            $updateData['image'] = $request->file('image')->store('programs', 'public');
+        }
+
+        $program->update($updateData);
 
         // Log admin action
         $this->logAdminAction(
@@ -117,6 +130,7 @@ class ProgramController extends Controller
             "Updated program: {$program->title}"
         );
 
+        $program->image_url = asset('storage/' . $program->image);
         return response()->json($program->load('creator'));
     }
 
@@ -125,6 +139,11 @@ class ProgramController extends Controller
         // Only admin can delete programs
         if (!$request->user()->isAdmin()) {
             return response()->json(['error' => 'Only admin can delete programs'], 403);
+        }
+
+        // Delete image from storage
+        if ($program->image && \Storage::disk('public')->exists($program->image)) {
+            Storage::disk('public')->delete($program->image);
         }
 
         $programTitle = $program->title;

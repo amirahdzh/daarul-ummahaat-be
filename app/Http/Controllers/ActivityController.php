@@ -1,3 +1,4 @@
+use Illuminate\Support\Facades\Storage;
 <?php
 
 namespace App\Http\Controllers;
@@ -5,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Models\Activity;
 use App\Models\AdminLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ActivityController extends Controller
 {
@@ -74,19 +76,23 @@ class ActivityController extends Controller
             return response()->json(['error' => 'Only admin or editor can create activities'], 403);
         }
 
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'event_date' => 'required|date',
-            'image' => 'required|string',
+            'image' => 'required|file|image|max:2048',
             'is_published' => 'boolean',
         ]);
+
+        // Store image
+        $imagePath = $request->file('image')->store('activities', 'public');
 
         $activity = Activity::create([
             'title' => $request->title,
             'description' => $request->description,
             'event_date' => $request->event_date,
-            'image' => $request->image,
+            'image' => $imagePath,
             'created_by' => $request->user()->id,
             'is_published' => $request->is_published ?? false,
         ]);
@@ -113,21 +119,31 @@ class ActivityController extends Controller
             return response()->json(['error' => 'Unauthorized to update this activity'], 403);
         }
 
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'event_date' => 'required|date',
-            'image' => 'required|string',
+            'image' => 'nullable|file|image|max:2048',
             'is_published' => 'boolean',
         ]);
 
-        $activity->update([
+        $updateData = [
             'title' => $request->title,
             'description' => $request->description,
             'event_date' => $request->event_date,
-            'image' => $request->image,
             'is_published' => $request->is_published ?? $activity->is_published,
-        ]);
+        ];
+
+        // Handle image update
+        if ($request->hasFile('image')) {
+            if ($activity->image && Storage::disk('public')->exists($activity->image)) {
+                Storage::disk('public')->delete($activity->image);
+            }
+            $updateData['image'] = $request->file('image')->store('activities', 'public');
+        }
+
+        $activity->update($updateData);
 
         // Log admin action
         $this->logAdminAction(
@@ -149,6 +165,12 @@ class ActivityController extends Controller
             (!$request->user()->hasRole('editor') || $activity->created_by !== $request->user()->id)
         ) {
             return response()->json(['error' => 'Unauthorized to delete this activity'], 403);
+        }
+
+
+        // Delete image from storage
+        if ($activity->image && Storage::disk('public')->exists($activity->image)) {
+            Storage::disk('public')->delete($activity->image);
         }
 
         $activityTitle = $activity->title;
