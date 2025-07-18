@@ -1,0 +1,33 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main # atau sesuai branch utama kamu
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H your.vps.ip.address >> ~/.ssh/known_hosts
+        shell: bash
+
+      - name: Deploy to VPS
+        run: |
+          ssh -i ~/.ssh/deploy_key laraveldu@103.59.160.131 << 'EOF'
+            cd /var/www/daarul-ummahaat-be || git clone git@github.com:amirahdzh/daarul-ummahaat-be.git /var/www/daarul-ummahaat-be
+            cd /var/www/daarul-ummahaat-be
+            git pull origin main
+            # Jalankan perintah deploy, misal composer install, migrate, dll
+            # composer install --no-dev --optimize-autoloader
+            # php artisan migrate --force
+          EOF
