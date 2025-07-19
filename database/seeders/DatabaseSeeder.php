@@ -45,5 +45,15 @@ class DatabaseSeeder extends Seeder
             'phone' => '+1234567892',
             'role_id' => $editorRole->id,
         ]);
+
+        // Call other seeders
+        $this->call([
+            ProgramSeeder::class,
+            DonationPackageSeeder::class,
+            FundraiserSeeder::class,
+            ActivitySeeder::class,
+            DonationSeeder::class,
+            AdminLogSeeder::class,
+        ]);
     }
 }
