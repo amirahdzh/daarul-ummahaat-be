@@ -29,6 +29,14 @@ class ProgramController extends Controller
 
         $programs = $query->latest()->paginate($request->per_page ?? 15);
 
+        // Add image URLs to each program
+        $programs->getCollection()->transform(function ($program) {
+            if ($program->image) {
+                $program->image_url = asset('storage/' . $program->image);
+            }
+            return $program;
+        });
+
         return response()->json($programs);
     }
 
@@ -41,6 +49,10 @@ class ProgramController extends Controller
             if (!$program->is_published) {
                 return response()->json(['error' => 'Program not found'], 404);
             }
+        }
+
+        if ($program->image) {
+            $program->image_url = asset('storage/' . $program->image);
         }
 
         return response()->json($program);
@@ -142,7 +154,7 @@ class ProgramController extends Controller
         }
 
         // Delete image from storage
-        if ($program->image && \Storage::disk('public')->exists($program->image)) {
+        if ($program->image && Storage::disk('public')->exists($program->image)) {
             Storage::disk('public')->delete($program->image);
         }
 
