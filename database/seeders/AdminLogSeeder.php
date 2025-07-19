@@ -85,8 +85,8 @@ class AdminLogSeeder extends Seeder
             [
                 'user_id' => $adminUser->id,
                 'action' => 'login',
-                'target_table' => null,
-                'target_id' => null,
+                'target_table' => 'users',
+                'target_id' => $adminUser->id,
                 'note' => 'Admin user logged into the system',
                 'created_at' => Carbon::now()->subHours(2),
             ],
