@@ -1,4 +1,3 @@
-use Illuminate\Support\Facades\Storage;
 <?php
 
 namespace App\Http\Controllers;

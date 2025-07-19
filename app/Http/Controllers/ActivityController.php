@@ -44,6 +44,14 @@ class ActivityController extends Controller
 
         $activities = $query->orderBy('event_date', 'desc')->paginate($request->per_page ?? 15);
 
+        // Add image URLs to each activity
+        $activities->getCollection()->transform(function ($activity) {
+            if ($activity->image) {
+                $activity->image_url = asset('storage/' . $activity->image);
+            }
+            return $activity;
+        });
+
         return response()->json($activities);
     }
 
@@ -65,6 +73,10 @@ class ActivityController extends Controller
             }
         }
 
+        if ($activity->image) {
+            $activity->image_url = asset('storage/' . $activity->image);
+        }
+
         return response()->json($activity);
     }
 
@@ -79,7 +91,6 @@ class ActivityController extends Controller
         if (!$request->user()->isAdmin() && !$request->user()->hasRole('editor')) {
             return response()->json(['error' => 'Only admin or editor can create activities'], 403);
         }
-
 
         $request->validate([
             'title' => 'required|string|max:255',
@@ -110,6 +121,7 @@ class ActivityController extends Controller
             "Created activity: {$activity->title}"
         );
 
+        $activity->image_url = asset('storage/' . $activity->image);
         return response()->json($activity->load('creator'), 201);
     }
 
@@ -127,7 +139,6 @@ class ActivityController extends Controller
         ) {
             return response()->json(['error' => 'Unauthorized to update this activity'], 403);
         }
-
 
         $request->validate([
             'title' => 'required|string|max:255',
@@ -163,6 +174,7 @@ class ActivityController extends Controller
             "Updated activity: {$activity->title}"
         );
 
+        $activity->image_url = asset('storage/' . $activity->image);
         return response()->json($activity->load('creator'));
     }
 
@@ -180,7 +192,6 @@ class ActivityController extends Controller
         ) {
             return response()->json(['error' => 'Unauthorized to delete this activity'], 403);
         }
-
 
         // Delete image from storage
         if ($activity->image && Storage::disk('public')->exists($activity->image)) {
@@ -212,6 +223,14 @@ class ActivityController extends Controller
             ->take($request->limit ?? 5)
             ->get();
 
+        // Add image URLs to each activity
+        $activities->transform(function ($activity) {
+            if ($activity->image) {
+                $activity->image_url = asset('storage/' . $activity->image);
+            }
+            return $activity;
+        });
+
         return response()->json($activities);
     }
 
@@ -223,6 +242,14 @@ class ActivityController extends Controller
 
         $activities = $query->orderBy('event_date', 'desc')
             ->paginate($request->per_page ?? 15);
+
+        // Add image URLs to each activity
+        $activities->getCollection()->transform(function ($activity) {
+            if ($activity->image) {
+                $activity->image_url = asset('storage/' . $activity->image);
+            }
+            return $activity;
+        });
 
         return response()->json($activities);
     }
