@@ -1,4 +1,3 @@
-use Illuminate\Support\Facades\Storage;
 <?php
 
 namespace App\Http\Controllers;
@@ -71,6 +70,11 @@ class ActivityController extends Controller
 
     public function store(Request $request)
     {
+        // Check if user is authenticated first
+        if (!$request->user()) {
+            return response()->json(['error' => 'Authentication required'], 401);
+        }
+
         // Admin or editor can create activities
         if (!$request->user()->isAdmin() && !$request->user()->hasRole('editor')) {
             return response()->json(['error' => 'Only admin or editor can create activities'], 403);
@@ -111,6 +115,11 @@ class ActivityController extends Controller
 
     public function update(Request $request, Activity $activity)
     {
+        // Check if user is authenticated first
+        if (!$request->user()) {
+            return response()->json(['error' => 'Authentication required'], 401);
+        }
+
         // Admin can update any, editor can only update their own
         if (
             !$request->user()->isAdmin() &&
@@ -159,6 +168,11 @@ class ActivityController extends Controller
 
     public function destroy(Request $request, Activity $activity)
     {
+        // Check if user is authenticated first
+        if (!$request->user()) {
+            return response()->json(['error' => 'Authentication required'], 401);
+        }
+
         // Admin can delete any, editor can only delete their own
         if (
             !$request->user()->isAdmin() &&
