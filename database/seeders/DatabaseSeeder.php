@@ -54,7 +54,7 @@ class DatabaseSeeder extends Seeder
             FundraiserSeeder::class,
             ActivitySeeder::class,
             DonationSeeder::class,
-            AdminLogSeeder::class,
+            // AdminLogSeeder::class,
         ]);
     }
 }
