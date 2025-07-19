@@ -25,6 +25,7 @@ class FundraiserSeeder extends Seeder
                 'target_amount' => 50000000, // 50 million
                 'current_amount' => 12500000, // 12.5 million raised so far
                 'deadline' => Carbon::now()->addMonths(6),
+                'image' => 'fundraisers/school-wing.jpg',
                 'status' => 'active',
                 'created_by' => $adminUser->id,
                 'is_published' => true,
@@ -36,6 +37,7 @@ class FundraiserSeeder extends Seeder
                 'target_amount' => 10000000, // 10 million
                 'current_amount' => 8750000, // 8.75 million raised
                 'deadline' => Carbon::now()->addDays(45),
+                'image' => 'fundraisers/ramadan-food.jpg',
                 'status' => 'active',
                 'created_by' => $editorUser->id,
                 'is_published' => true,
@@ -47,6 +49,7 @@ class FundraiserSeeder extends Seeder
                 'target_amount' => 25000000, // 25 million
                 'current_amount' => 25000000, // Fully funded
                 'deadline' => Carbon::now()->subDays(15), // Expired but completed
+                'image' => 'fundraisers/masjid-renovation.jpg',
                 'status' => 'completed',
                 'created_by' => $adminUser->id,
                 'is_published' => true,
@@ -58,6 +61,7 @@ class FundraiserSeeder extends Seeder
                 'target_amount' => 15000000, // 15 million
                 'current_amount' => 3200000, // 3.2 million raised
                 'deadline' => Carbon::now()->addMonths(8),
+                'image' => 'fundraisers/library-expansion.jpg',
                 'status' => 'active',
                 'created_by' => $editorUser->id,
                 'is_published' => true,
@@ -69,6 +73,7 @@ class FundraiserSeeder extends Seeder
                 'target_amount' => 30000000, // 30 million
                 'current_amount' => 18500000, // 18.5 million raised
                 'deadline' => Carbon::now()->addYear(),
+                'image' => 'fundraisers/orphan-support.jpg',
                 'status' => 'active',
                 'created_by' => $adminUser->id,
                 'is_published' => true,
@@ -80,6 +85,7 @@ class FundraiserSeeder extends Seeder
                 'target_amount' => 20000000, // 20 million
                 'current_amount' => 1800000, // 1.8 million raised
                 'deadline' => Carbon::now()->addMonths(10),
+                'image' => 'fundraisers/womens-center.jpg',
                 'status' => 'draft',
                 'created_by' => $editorUser->id,
                 'is_published' => false,

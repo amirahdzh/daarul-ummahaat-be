@@ -48,6 +48,7 @@ class DatabaseSeeder extends Seeder
 
         // Call other seeders
         $this->call([
+            ImageSeeder::class,
             ProgramSeeder::class,
             DonationPackageSeeder::class,
             FundraiserSeeder::class,
