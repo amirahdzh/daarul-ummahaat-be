@@ -34,9 +34,10 @@ Route::get('/donation-packages/{id}', [DonationPackageController::class, 'show']
 Route::get('/fundraisers', [FundraiserController::class, 'index']);
 Route::get('/fundraisers/{id}', [FundraiserController::class, 'show']);
 Route::get('/activities', [ActivityController::class, 'index']);
-Route::get('/activities/{id}', [ActivityController::class, 'show']);
+// register static routes before the parameterized route to avoid conflicts (e.g. 'past' being treated as an {id})
 Route::get('/activities/upcoming', [ActivityController::class, 'upcoming']);
 Route::get('/activities/past', [ActivityController::class, 'past']);
+Route::get('/activities/{id}', [ActivityController::class, 'show']);
 
 // Public donation creation (for anonymous donors)
 Route::post('/donations', [DonationController::class, 'store']);

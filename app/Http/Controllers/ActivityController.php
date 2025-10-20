@@ -44,11 +44,9 @@ class ActivityController extends Controller
 
         $activities = $query->orderBy('event_date', 'desc')->paginate($request->per_page ?? 15);
 
-        // Add image URLs to each activity
+        // Add image URLs to each activity (always include the key for clients)
         $activities->getCollection()->transform(function ($activity) {
-            if ($activity->image) {
-                $activity->image_url = asset('storage/' . $activity->image);
-            }
+            $activity->image_url = $activity->image ? asset('storage/' . $activity->image) : null;
             return $activity;
         });
 
@@ -73,9 +71,8 @@ class ActivityController extends Controller
             }
         }
 
-        if ($activity->image) {
-            $activity->image_url = asset('storage/' . $activity->image);
-        }
+        // Ensure image_url key exists for consistent responses
+        $activity->image_url = $activity->image ? asset('storage/' . $activity->image) : null;
 
         return response()->json($activity);
     }
@@ -219,15 +216,13 @@ class ActivityController extends Controller
             ->where('is_published', true)
             ->with('creator');
 
+        // Return paginated results to match the shape returned by index/past
         $activities = $query->orderBy('event_date', 'asc')
-            ->take($request->limit ?? 5)
-            ->get();
+            ->paginate($request->per_page ?? 5);
 
-        // Add image URLs to each activity
-        $activities->transform(function ($activity) {
-            if ($activity->image) {
-                $activity->image_url = asset('storage/' . $activity->image);
-            }
+        // Add image URLs to each activity (always include the key for clients)
+        $activities->getCollection()->transform(function ($activity) {
+            $activity->image_url = $activity->image ? asset('storage/' . $activity->image) : null;
             return $activity;
         });
 
@@ -243,11 +238,9 @@ class ActivityController extends Controller
         $activities = $query->orderBy('event_date', 'desc')
             ->paginate($request->per_page ?? 15);
 
-        // Add image URLs to each activity
+        // Add image URLs to each activity (always include the key for clients)
         $activities->getCollection()->transform(function ($activity) {
-            if ($activity->image) {
-                $activity->image_url = asset('storage/' . $activity->image);
-            }
+            $activity->image_url = $activity->image ? asset('storage/' . $activity->image) : null;
             return $activity;
         });
 
